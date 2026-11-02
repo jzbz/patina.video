@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy — Patina</title>
+<meta name="description" content="What Patina keeps on your computer, what it sends over the network and to whom, and what it does not do.">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="../assets/images/icon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
+<link rel="canonical" href="https://patina.video/privacy/">
+
+<meta name="theme-color" content="#121214">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Patina">
+<meta property="og:title" content="Privacy — Patina">
+<meta property="og:description" content="What Patina keeps on your computer, what it sends over the network and to whom, and what it does not do.">
+<!-- Absolute on purpose, as on the front page: link scrapers fetch these
+     without page context. -->
+<meta property="og:url" content="https://patina.video/privacy/">
+<meta property="og:image" content="https://patina.video/assets/images/og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Patina — your video, edge to edge. A media player for Linux, macOS and Windows, shown as a window playing a Mandelbrot set with a floating controller over it.">
+
+<link rel="preload" href="../assets/fonts/ibm-plex-sans-regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/ibm-plex-sans-bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/style.css">
+
+<!-- The same stamp as the front page: a stored choice of light, before the
+     first paint. -->
+<script>
+(function () {
+    try {
+        if (localStorage.getItem("patina-theme") === "light") {
+            document.documentElement.classList.add("light");
+        }
+    } catch (e) {
+        /* No storage available. The stylesheet's dark default stands. */
+    }
+}());
+</script>
+</head>
+<body>
+
+<!-- Lucide icons, ISC licensed: the one this page uses. -->
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <symbol viewBox="0 0 24 24" id="i-external"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  </defs>
+</svg>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head" id="siteHead">
+  <div class="head-inner">
+    <a class="brand" href="../" aria-label="Patina, home">
+      <img class="brand-icon" src="../assets/images/icon.svg" alt="" width="30" height="30">
+      <span class="brand-word">Patina</span>
+    </a>
+
+    <nav class="head-nav" aria-label="Sections">
+      <a href="#computer">Your computer</a>
+      <a href="#network">The network</a>
+      <a href="#desktop">Your desktop</a>
+      <a href="#website">This site</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="head-actions">
+      <button class="btn btn-ghost btn-icon" id="theme-toggle" type="button" hidden
+              aria-pressed="false" aria-label="Dark theme">
+        <svg class="ico ico-sun" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        <svg class="ico ico-moon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+      <a class="btn" href="https://github.com/jzbz/patina">
+        GitHub<svg class="ico" aria-hidden="true"><use href="#i-external"/></svg>
+      </a>
+      <a class="btn btn-primary" href="../#get">Get it</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+<!-- Every statement on this page was read out of the app's source, at master on
+     the date below; nothing here comes from watching it run. What mpv, yt-dlp
+     and Deno do is their own affair and is said no more strongly than that. -->
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <p class="eyebrow">Privacy policy &middot; effective 2026-11-02</p>
+    <h1 class="hero-h1">Privacy.</h1>
+    <p class="hero-deck">
+      Patina has no account and sends nothing to its developer. It plays what
+      you open, keeps your history on your computer, and talks to the services
+      you set up yourself. This page says exactly what, where and when.
+    </p>
+    <p class="negations"><span>no account</span><span>no telemetry</span><span>no analytics</span><span>no crash reports</span><span>no update check</span></p>
+  </div>
+</section>
+
+<div class="prose">
+  <div class="wrap wrap-narrow">
+
+    <!-- ------------------------------------------------------ in short -->
+    <section id="summary" aria-labelledby="summary-h">
+      <p class="section-label">In short</p>
+      <h2 id="summary-h">The short version.</h2>
+      <ul>
+        <li>
+          <strong>Nothing goes to the developer.</strong> Patina has no account,
+          no telemetry, no analytics, no crash reporting and no update check, and
+          it looks up no covers or metadata for what you play.
+        </li>
+        <li>
+          <strong>On your computer</strong> it keeps your settings, your playback
+          history, where you stopped in each file, and thumbnails of your videos.
+          These are ordinary files and are not encrypted. Preferences can turn
+          most of it off and clear it.
+        </li>
+        <li>
+          <strong>When you open something from the network</strong>, mpv or
+          yt-dlp connects to it from your IP address, as any player would.
+        </li>
+        <li>
+          <strong>OpenSubtitles</strong> is off until you give Patina your own API
+          key. A search sends the file's hash, its name and your languages.
+        </li>
+        <li>
+          <strong>Jellyfin</strong> is off until you add a server. After that
+          Patina talks to that server when it starts, and tells it what you play
+          and how far you have got.
+        </li>
+      </ul>
+      <p>
+        This page covers the app only. The tools in its repository are not part
+        of any package.
+      </p>
+    </section>
+
+    <!-- ------------------------------------------------- your computer -->
+    <section id="computer" aria-labelledby="computer-h">
+      <p class="section-label">On your computer</p>
+      <h2 id="computer-h">What it keeps.</h2>
+      <p>
+        Patina keeps its settings in one folder and its data in another. They
+        are ordinary files with your system's default permissions, so on a
+        computer you share, whether other accounts can read them depends on
+        those defaults. <code>PATINA_CONFIG_DIR</code> and
+        <code>PATINA_DATA_DIR</code> move them.
+      </p>
+
+      <h3>Settings</h3>
+      <ul class="paths">
+        <li><b>Linux</b> <span><code>~/.config/patina/</code></span></li>
+        <li><b>Flatpak</b> <span><code>~/.var/app/video.patina.Patina/config/patina/</code></span></li>
+        <li><b>macOS</b> <span><code>~/Library/Application Support/video.patina.Patina/</code></span></li>
+        <li><b>Windows</b> <span><code>%APPDATA%\Patina\config\</code></span></li>
+      </ul>
+      <ul>
+        <li>
+          <code>settings.json</code> &mdash; your preferences. This includes your
+          OpenSubtitles API key and user name, <strong>in plain text</strong>. The
+          OpenSubtitles password is not here: see <a href="#passwords">Passwords</a>.
+        </li>
+        <li><code>input_conf/</code> &mdash; your key binding sets.</li>
+        <li><code>mpv/</code> &mdash; your own <code>mpv.conf</code>, scripts and fonts, if you add any.</li>
+      </ul>
+
+      <h3>Data</h3>
+      <ul class="paths">
+        <li><b>Linux</b> <span><code>~/.local/share/patina/</code></span></li>
+        <li><b>Flatpak</b> <span><code>~/.var/app/video.patina.Patina/data/patina/</code></span></li>
+        <li><b>macOS</b> <span>the same folder as the settings</span></li>
+        <li><b>Windows</b> <span><code>%APPDATA%\Patina\data\</code></span></li>
+      </ul>
+      <p>
+        On Windows, <code>%APPDATA%</code> is the part of your profile that roams,
+        so on a network with roaming profiles these can follow you to other
+        computers.
+      </p>
+      <ul>
+        <li>
+          <code>history.json</code> &mdash; what you played: the path or URL, the
+          title, when, its length and how far you got. At most 1,000 entries. This
+          also feeds the recent files.
+        </li>
+        <li>
+          <code>watch-later/</code> &mdash; mpv's resume files: where you stopped
+          in a file, with its tracks, delays, speed, volume and the like.
+        </li>
+        <li>
+          <code>thumbnails/</code> &mdash; the seek bar's previews, which are
+          <strong>actual frames of your videos</strong>, as JPEG. They are made for
+          local files only and limited to 500&nbsp;MB by default. Each file is named
+          by a hash of the video's path, size and date.
+        </li>
+        <li>
+          <code>online-subtitles/</code> &mdash; subtitles downloaded from
+          OpenSubtitles, with no limit on how many.
+        </li>
+        <li>
+          <code>jellyfin.json</code> &mdash; the Jellyfin servers you have added:
+          each one's name, address and version, your user name and ID on it, and a
+          random ID for this device. No password or token is kept here.
+        </li>
+        <li>
+          <code>jellyfin/images/</code> &mdash; posters from those servers, limited
+          to 256&nbsp;MB by default.
+        </li>
+      </ul>
+
+      <h3>Elsewhere</h3>
+      <ul>
+        <li>
+          Screenshots go to the folder you choose, or else
+          <code>Pictures/Patina</code>, and downloads to the folder you choose, or
+          else your Downloads folder.
+        </li>
+        <li>
+          If you make Patina the default player, it registers itself with your
+          system: a desktop entry and <code>mimeapps.list</code> on Linux, and
+          entries under your user in the registry on Windows. Preferences &rsaquo;
+          Utilities takes them out again.
+        </li>
+        <li>
+          While it runs, Patina keeps a lock file, an ID file and a socket or named
+          pipe in a private folder. See <a href="#one-patina">One Patina at a time</a>.
+        </li>
+      </ul>
+
+      <h3>Logs</h3>
+      <p>
+        Patina writes no log file of its own. It logs to standard error, at
+        warning level unless you pass <code>--verbose</code>, so you see it if you
+        start Patina from a terminal, and a desktop may keep the output of the
+        programs it starts. If you ask mpv for a log file through an mpv option,
+        mpv writes one, and what is in it is up to mpv.
+      </p>
+
+      <h3 id="turning-off">Turning it off, and clearing it</h3>
+      <ul>
+        <li>
+          <strong>Remember playback history</strong> (Preferences &rsaquo; General)
+          stops new entries and keeps the old ones. <strong>Clear Playback
+          History</strong> (Utilities) empties the file, and so do Clear Recent on
+          the welcome screen and Clear History in the History window. Those are all
+          one action: clearing Recent clears the whole history. A single entry can
+          be removed from the History window.
+        </li>
+        <li>
+          <strong>Resume where you left off</strong> (General) stops Patina saving
+          your place when you quit or a file ends. <strong>It does not stop every
+          save:</strong> opening a new file over one that is playing still asks mpv
+          to save the place of the one you are leaving, whatever this preference
+          says. <strong>Clear Saved Positions</strong> (Utilities) deletes the whole
+          folder.
+        </li>
+        <li>
+          <strong>Show thumbnails while hovering the seek bar</strong> (Interface)
+          turns the previews off. <strong>Clear Thumbnail Cache</strong> (Utilities)
+          deletes them.
+        </li>
+        <li>
+          <strong>Clear Poster Cache</strong> (Jellyfin) deletes the posters, and so
+          does signing out.
+        </li>
+        <li>
+          There is no button yet for <code>online-subtitles/</code>, and none for
+          removing a server from <code>jellyfin.json</code>. Signing out removes your
+          user name and ID but leaves the server's entry and the device ID. Delete
+          the folder or the file by hand.
+        </li>
+      </ul>
+
+      <h3>Removing it all</h3>
+      <p>
+        Deleting the folders above removes what Patina has stored, apart from the
+        passwords below and any screenshots or downloads you have kept.
+        Uninstalling may leave them in place. The Windows uninstaller leaves your
+        settings, and takes out the file types Patina registered.
+        <code>flatpak uninstall --delete-data video.patina.Patina</code> removes the
+        Flatpak's, and on macOS <code>brew uninstall --zap --cask patina</code>
+        removes them too.
+      </p>
+    </section>
+
+    <!-- ---------------------------------------------------- passwords -->
+    <section id="passwords" aria-labelledby="passwords-h">
+      <p class="section-label">Passwords</p>
+      <h2 id="passwords-h">Your system's password store.</h2>
+      <p>
+        The OpenSubtitles password and your Jellyfin sign-in tokens go in the
+        system's own store: Secret Service on Linux (GNOME Keyring or KWallet, for
+        example), Keychain on macOS, and Credential Manager on Windows. They are
+        filed under <code>Patina OpenSubtitles</code> and <code>Patina Jellyfin</code>.
+      </p>
+      <ul>
+        <li>
+          If there is no store, nothing falls back to a file. The OpenSubtitles
+          password is not kept and says so, and a Jellyfin sign-in lasts until
+          Patina quits.
+        </li>
+        <li>Your Jellyfin password is sent to the server to sign in and is not stored.</li>
+        <li>
+          Clearing the OpenSubtitles password field and pressing Enter deletes that
+          password. Restoring the default preferences does not: it clears the API
+          key and user name from <code>settings.json</code> and leaves the password
+          in the store.
+        </li>
+        <li>
+          Sign-ins and passwords stay in the store when you uninstall. Your system's
+          password manager can remove them.
+        </li>
+      </ul>
+    </section>
+
+    <!-- ---------------------------------------------------- the network -->
+    <section id="network" aria-labelledby="network-h">
+      <p class="section-label">The network</p>
+      <h2 id="network-h">What leaves your computer.</h2>
+      <p>
+        With no Jellyfin server signed in, Patina makes no connection of its own at
+        startup or while it sits idle. Everything below is something you opened or
+        set up. It never contacts the developer, and it never checks for updates.
+      </p>
+
+      <h3>What you open</h3>
+      <p>
+        When you open a URL or a stream, mpv connects to it directly from your IP
+        address, like any other player. The HTTP proxy and user agent preferences
+        are passed to mpv.
+      </p>
+      <p>
+        <strong>Play videos from websites with yt-dlp</strong> is on by default, so
+        a web address can be handed to yt-dlp, which fetches the page. What yt-dlp
+        sends is up to yt-dlp and to your own yt-dlp configuration, which Patina's
+        Downloads window does not ignore. For YouTube it may use a JavaScript
+        runtime such as Deno. The Flatpak carries both; elsewhere they are whichever
+        you have installed.
+      </p>
+      <p>
+        Scripts in Patina's <code>mpv</code> folder load by default, and a script can
+        do anything, the network included. There are none unless you add them.
+      </p>
+
+      <h3>OpenSubtitles</h3>
+      <p>
+        Patina ships no API key, and with none it sends nothing. With your own, a
+        search goes to <code>api.opensubtitles.com</code> over HTTPS, when you choose
+        Find Online Subtitles or, if you turn on <strong>Search online when a video
+        has no subtitles</strong> (off by default), when a local video of twenty
+        minutes or more opens with no subtitle tracks. The automatic search downloads
+        only an exact match by hash.
+      </p>
+      <p>A search sends:</p>
+      <ul>
+        <li>your API key, on every request;</li>
+        <li>
+          for a local file, its OpenSubtitles hash, made from 64&nbsp;KiB at each end
+          of the file (files over 128&nbsp;KiB), and its name in lower case, with no
+          folder or extension;
+        </li>
+        <li>for a stream or a Jellyfin item, its title instead, and no hash;</li>
+        <li>your subtitle languages, or English if you have set none;</li>
+        <li>a user agent naming Patina and its version, and your IP address, as any request does.</li>
+      </ul>
+      <p>
+        If you set up an account, your user name and password go to its sign-in over
+        HTTPS, and Patina signs out when it quits. A download fetches the link
+        OpenSubtitles returns, wherever that points, without your key. OpenSubtitles'
+        own privacy policy covers what it does with all this.
+      </p>
+
+      <h3>Jellyfin</h3>
+      <p>
+        Patina talks only to servers you add. <strong>Once you are signed in, it
+        contacts that server every time it starts</strong>, without being asked, to
+        load the library in the idle window.
+      </p>
+      <ul>
+        <li>
+          Every request names the client as Patina, the device as &ldquo;Patina on&rdquo;
+          your platform, a random device ID and the version, and carries your token
+          once you are signed in.
+        </li>
+        <li>
+          While you play something from the server, Patina reports it at the start and
+          the end and every ten seconds between, paused or not: which item, the
+          position, whether it is paused or muted, the volume, the audio and subtitle
+          tracks, and the queue. That is how your place stays on the server, and anyone
+          who runs the server can see it.
+        </li>
+        <li>
+          <strong>A server at an <code>http://</code> address gets your password and
+          token unencrypted.</strong> Patina warns you when you add one.
+        </li>
+        <li>
+          Scan Network, only when you press it, broadcasts one fixed message on your
+          local network on UDP port 7359, which every device there can receive. It
+          carries nothing about you.
+        </li>
+        <li>
+          Requests follow redirects only on the same server. Adding a server is the
+          exception: that first check, which carries no token, follows them anywhere. A
+          conversion on another host is not played, and subtitles on another host are
+          not added.
+        </li>
+      </ul>
+
+      <h3><code>patina://</code> links</h3>
+      <p>
+        If you let your browser open them, a web page can use a
+        <code>patina://open</code> link to make Patina play a stream at once, with no
+        question from Patina itself. That connects you to the stream's host from your
+        IP address, adds it to your history as anything you open does, and may bring
+        Patina to the front, replace what is playing or go full screen. It can also set
+        a fixed list of mpv options, among them the user agent, referrer, headers and
+        cookies of that stream's request.
+      </p>
+      <p>
+        A link cannot open local files, cannot make Patina listen on the network, and
+        cannot set scripts or turn off certificate checks, and nothing comes back to the
+        page. Whether your browser asks first is up to your browser.
+      </p>
+
+      <h3>Your browser</h3>
+      <p>
+        Patina opens a page in your browser only when you ask: its website from the Help
+        menu, or a web address in the playlist with Open in Browser.
+      </p>
+    </section>
+
+    <!-- --------------------------------------------------- your desktop -->
+    <section id="desktop" aria-labelledby="desktop-h">
+      <p class="section-label">On your desktop</p>
+      <h2 id="desktop-h">Other programs on your computer.</h2>
+
+      <h3>Player controls</h3>
+      <p>
+        <strong>Use media keys and the desktop's player controls</strong> is a
+        preference. With it on, Patina tells your desktop what is playing, including
+        the title and artwork, through MPRIS on Linux, the media panel on Windows and
+        Now Playing on macOS. Other programs can read that, and what the desktop does
+        with it is up to the desktop.
+      </p>
+
+      <h3 id="one-patina">One Patina at a time</h3>
+      <p>
+        Files you open from a terminal or a file manager go to the Patina already
+        running, over a Unix socket in a folder only you can read, or on Windows a named
+        pipe that refuses other users and other computers. Only the request to open
+        something crosses it. Patina opens no TCP or UDP port to listen on.
+      </p>
+
+      <h3>The Flatpak's sandbox</h3>
+      <p>
+        The Flatpak can read every file you can, so that it can open what you point it
+        at, and can write only to your Downloads folder, to Pictures/Patina, and to a
+        file you choose in a save dialog. It also has the network, your display, sound,
+        your graphics hardware, the password store and the file manager's
+        show-this-file service. On macOS and Windows Patina is not sandboxed; that it
+        keeps to the folders above is a property of its code, which is public.
+      </p>
+
+      <h3>Your operating system</h3>
+      <p>
+        Patina sends no crash report. Your operating system's own crash handling may
+        still record one, and may send it to the system's maker if you have allowed
+        that. HTTPS certificates are checked against your system's trusted certificates,
+        and on macOS and Windows the system may go online to do so.
+      </p>
+    </section>
+
+    <!-- -------------------------------------------------------- website -->
+    <section id="website" aria-labelledby="website-h">
+      <p class="section-label">This site</p>
+      <h2 id="website-h">patina.video.</h2>
+      <p>
+        This site is a set of static pages hosted on GitHub Pages. GitHub, as the host,
+        receives every visitor's request, including their IP address, and its own
+        privacy statement covers that. The site loads nothing from anyone else &mdash;
+        its fonts, styles, scripts and images all come from patina.video &mdash; and it
+        has no analytics, no embeds and no cookies.
+      </p>
+      <p>
+        If you use the light and dark switch, your choice is kept in your browser's local
+        storage, under <code>patina-theme</code>, and stays there. The window on the front
+        page runs entirely in your browser and sends nothing anywhere. The copy buttons
+        put a command on your clipboard when you press one. Links to GitHub and to jz.bz
+        are ordinary links.
+      </p>
+      <p>
+        The downloads are hosted on GitHub, and winget and Homebrew download from
+        there; installing the Flatpak bundle may have Flatpak download the runtime it needs
+        from Flathub. GitHub, the package managers and Flathub have their own privacy
+        policies.
+      </p>
+    </section>
+
+    <!-- -------------------------------------------------------- contact -->
+    <section id="contact" aria-labelledby="contact-h">
+      <p class="section-label">Contact</p>
+      <h2 id="contact-h">Questions, and changes.</h2>
+      <p>
+        Open an issue at
+        <a href="https://github.com/jzbz/patina/issues">github.com/jzbz/patina/issues</a>.
+        Issues are public, so leave out anything you would rather keep to yourself. If
+        this page is wrong about what Patina does, that is a bug; please report it.
+      </p>
+      <p>
+        Effective 2026-11-02. When a release changes anything described here, this page changes with it, and so does the date.
+      </p>
+    </section>
+
+  </div>
+</div>
+
+</main>
+
+<footer class="colophon">
+  <div class="wrap colophon-inner">
+    <div class="colophon-brand">
+      <img class="brand-icon" src="../assets/images/icon.svg" alt="" width="38" height="38">
+      <span class="wordmark">Patina</span>
+      <p>A media player for Linux, macOS and Windows.</p>
+    </div>
+
+    <nav class="colophon-links" aria-label="Elsewhere">
+      <a href="https://github.com/jzbz/patina">Source<svg class="ico" aria-hidden="true"><use href="#i-external"/></svg></a>
+      <a href="https://github.com/jzbz/patina/issues">Issues<svg class="ico" aria-hidden="true"><use href="#i-external"/></svg></a>
+      <a href="./">Privacy</a>
+      <a href="https://jz.bz/">jz<svg class="ico" aria-hidden="true"><use href="#i-external"/></svg></a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../assets/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,1567 @@
+/* patina.video
+ *
+ * The page's own tokens come first and move with the theme. The window rebuilt
+ * in the page has its tokens further down, transcribed from the app's
+ * ui/theme.slint: Patina has one palette, a dark one, so that window stays dark
+ * on the light page as well, as the app would.
+ */
+
+/* ---------------------------------------------------------------- fonts */
+
+/* IBM Plex Sans, which the app compiles in so that it looks the same on every
+   system. These are the app's own files in WOFF2, otherwise untouched: "Plex"
+   is a Reserved Font Name, and a subset would be a modified version that could
+   not keep it. SIL Open Font License 1.1; see fonts/OFL.txt. */
+@font-face {
+    font-family: "IBM Plex Sans";
+    src: url("fonts/ibm-plex-sans-regular.woff2") format("woff2");
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: "IBM Plex Sans";
+    src: url("fonts/ibm-plex-sans-semibold.woff2") format("woff2");
+    font-weight: 600;
+    font-display: swap;
+}
+@font-face {
+    font-family: "IBM Plex Sans";
+    src: url("fonts/ibm-plex-sans-bold.woff2") format("woff2");
+    font-weight: 700;
+    font-display: swap;
+}
+
+/* --------------------------------------------------------------- tokens */
+
+/* Dark is the default for everyone: this is a page about looking at video, and
+   the app has no other palette. The theme control opts out into `.light`, and
+   that choice is remembered. */
+:root {
+    /* The app's greys, which have no blue in them: smoke rather than
+       the slate of the sibling sites. */
+    --bg: #121214;
+    --surface: #1b1b1d;
+    --raised: #242426;
+    --sunken: #0d0d0f;
+
+    --hover: #ffffff14;
+    --glass-raised: #ffffff24;
+
+    --border: #ffffff14;
+    --border-strong: #ffffff24;
+
+    --text: #f0f0f1;
+    /* theme.slint's secondary-text, #ffffff99, flattened onto the background.
+       Its tertiary #ffffff5c is 2.9:1 there, too faint for what it would carry
+       on a page, so this is lifted to 5.6:1. */
+    --dim: #a6a6a8;
+    --faint: #8e8e91;
+
+    /* Verdigris: theme.slint's `playing`, the one green in the app, and a tone
+       out of the icon's ground. The app's blue stays in the window, where it
+       means what it means there. #0b2a23 on it is 7.5:1. */
+    --accent: #6cc4ac;
+    --accent-hover: #8fd6c2;
+    --accent-ink: #0b2a23;
+
+    --s1: 4px;
+    --s2: 8px;
+    --s3: 12px;
+    --s4: 18px;
+    --s5: 24px;
+    --s6: 32px;
+
+    --r-sm: 8px;
+    --r-md: 12px;
+
+    --t-micro: 10.5px;
+    --t-small: 11.5px;
+    --t-body: 13px;
+    --t-title: 15px;
+    --t-heading: 17px;
+
+    --t-prose: 16px;
+    --t-deck: 19px;
+
+    --w-regular: 400;
+    --w-medium: 600;
+    --w-bold: 700;
+
+    /* `quick` answers a pointer, `settle` is the window's own 200ms fade, and
+       `ambient` is the glow, which nobody is meant to watch. */
+    --quick: 120ms;
+    --settle: 200ms;
+    --ambient: 1200ms;
+
+    --ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+    /* The application ships no monospace face, so machine values get whatever
+       the platform calls its own. */
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+        "Liberation Mono", monospace;
+}
+
+/* Chosen from the theme control only. */
+:root.light {
+    --bg: #f6f7f5;
+    --surface: #ffffff;
+    --raised: #eef0ed;
+    --sunken: #ebedea;
+
+    --hover: #0000000a;
+    --glass-raised: #00000012;
+
+    --border: #e1e4df;
+    --border-strong: #cdd1cb;
+
+    --text: #15191a;
+    --dim: #535b58;
+    --faint: #626a67;
+
+    /* The icon's far corner and a step past it: #6cc4ac on white is 2:1, and
+       this is 5.9:1. */
+    --accent: #12705c;
+    --accent-hover: #0e5c4b;
+    --accent-ink: #ffffff;
+}
+
+/* Held for one frame while the theme is switched: a transition whose value
+   comes from a custom property does not re-run when that property changes, so
+   whatever carries one would stay on the old palette. */
+:root.theming *,
+:root.theming *::before,
+:root.theming *::after {
+    transition: none !important;
+}
+
+/* ----------------------------------------------------------------- base */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: 76px;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--ui);
+    font-size: var(--t-prose);
+    font-synthesis: none;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+}
+
+h1, h2, h3, p, ul, ol, figure, blockquote, dl, dd, pre { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+
+a {
+    color: var(--accent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+}
+a:hover { color: var(--accent-hover); }
+
+code, kbd, samp, pre { font-family: var(--mono); font-synthesis: none; }
+code { font-size: 0.88em; }
+
+svg { display: block; }
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--r-sm);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.skip {
+    position: absolute;
+    left: var(--s3);
+    top: -100px;
+    z-index: 40;
+    padding: var(--s2) var(--s3);
+    border-radius: var(--r-sm);
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: var(--t-body);
+    font-weight: var(--w-medium);
+    text-decoration: none;
+    transition: top var(--quick) ease-out;
+}
+.skip:focus { top: var(--s3); color: var(--accent-ink); }
+
+.sprite { position: absolute; }
+
+/* Lucide's whole set is one 24x24 grid on a 2px round-cap stroke, so the
+   attributes live here once rather than on every symbol. The app fills its
+   transport glyphs, and so does `.ico-fill`. */
+.ico {
+    width: 16px; height: 16px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.ico-fill { fill: currentColor; }
+
+/* ------------------------------------------------------------ containers */
+
+.wrap {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 var(--s5);
+}
+.wrap-wide {
+    width: 100%;
+    max-width: 1228px;
+    margin: 0 auto;
+    padding: 0 var(--s5);
+}
+.wrap-narrow { max-width: 760px; }
+.center { text-align: center; }
+
+/* ---------------------------------------------------------- page chrome */
+
+.site-head {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    height: 58px;
+    border-bottom: 1px solid transparent;
+    /* The flat colour is the fallback: a declaration using color-mix is
+       dropped whole where color-mix is not understood. */
+    background: var(--bg);
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    -webkit-backdrop-filter: saturate(1.4) blur(12px);
+    backdrop-filter: saturate(1.4) blur(12px);
+    transition: border-color var(--quick) ease-out,
+                background-color var(--quick) ease-out;
+}
+.site-head.is-stuck {
+    border-bottom-color: var(--border);
+    background: var(--bg);
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+}
+
+.head-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--s5);
+    height: 100%;
+    /* Same as .wrap-wide, so the wordmark lines up with the window below. */
+    max-width: 1228px;
+    margin: 0 auto;
+    padding: 0 var(--s5);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    color: var(--text);
+    text-decoration: none;
+}
+.brand:hover { color: var(--text); }
+/* The app's icon has a 24-unit margin on its 256 grid, for Flathub. Here that
+   margin would only make the tile look small and off the baseline. */
+.brand-icon { width: 30px; height: 30px; margin: -3px; flex: none; }
+/* The app sets its own name in Plex Sans Bold on the welcome screen, and has
+   no other wordmark. */
+.brand-word,
+.wordmark {
+    font-weight: var(--w-bold);
+    letter-spacing: -0.01em;
+    line-height: 1;
+}
+.brand-word { font-size: 19px; }
+
+.head-nav {
+    display: flex;
+    gap: var(--s5);
+    margin-right: auto;
+    font-size: var(--t-body);
+}
+.head-nav a {
+    color: var(--dim);
+    text-decoration: none;
+    transition: color var(--quick) ease-out;
+}
+.head-nav a:hover { color: var(--text); }
+
+.head-actions { display: flex; align-items: center; gap: var(--s2); }
+
+/* --------------------------------------------------------------- buttons */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s2);
+    height: 34px;
+    padding: 0 var(--s3);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--raised);
+    color: var(--text);
+    font: inherit;
+    font-size: var(--t-body);
+    font-weight: var(--w-medium);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color var(--quick) ease-out, color var(--quick) ease-out,
+                border-color var(--quick) ease-out;
+}
+.btn:hover { background: var(--glass-raised); color: var(--text); }
+.btn-primary {
+    border-color: transparent;
+    background: var(--accent);
+    color: var(--accent-ink);
+}
+.btn-primary:hover { background: var(--accent-hover); color: var(--accent-ink); }
+.btn-ghost { border-color: transparent; background: transparent; color: var(--dim); }
+.btn-ghost:hover { background: var(--hover); color: var(--text); }
+.btn-icon { width: 34px; padding: 0; }
+.btn-lg { height: 44px; padding: 0 var(--s5); font-size: var(--t-title); }
+
+.ico-moon { display: none; }
+:root.light .ico-sun { display: none; }
+:root.light .ico-moon { display: block; }
+
+/* ------------------------------------------------------------------ hero */
+
+.hero { padding: 96px 0 64px; }
+
+.eyebrow {
+    color: var(--faint);
+    font-size: var(--t-body);
+    font-weight: var(--w-medium);
+    letter-spacing: 0.02em;
+}
+
+.hero-h1 {
+    margin-top: var(--s4);
+    font-size: clamp(40px, 7.4vw, 76px);
+    font-weight: var(--w-bold);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+}
+
+.hero-deck {
+    max-width: 62ch;
+    margin-top: var(--s5);
+    color: var(--dim);
+    font-size: var(--t-deck);
+    line-height: 1.55;
+}
+
+.hero-stack {
+    margin-top: var(--s5);
+    color: var(--faint);
+    font-size: var(--t-body);
+    line-height: 2;
+}
+.negations { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s2); color: var(--faint); }
+.negations span {
+    padding: 2px var(--s2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: var(--t-small);
+    letter-spacing: 0.02em;
+}
+.hero-deck + .negations { margin-top: var(--s5); }
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s3);
+    margin-top: var(--s6);
+}
+
+/* ------------------------------------------------------- the app window
+ *
+ * Rebuilt from ui/controls.slint, ui/sidebar.slint and ui/theme.slint, at the
+ * app's own sizes: a 32px title bar over the video, a 460x74 controller, and a
+ * 340px sidebar laid over the right of the picture. Every value here belongs
+ * to the app, and none of it moves with the page's theme. It is the window at
+ * 1180px, in 16:9, and not a picture of it.
+ */
+
+.window-section { padding-bottom: 96px; }
+
+.stage { position: relative; }
+
+/* The picture lights the page a little, as a television does a room. The
+   colour is sampled from the video once a second by player.js. */
+.stage-glow {
+    position: absolute;
+    inset: -5% -3%;
+    border-radius: 40px;
+    background: var(--glow, transparent);
+    filter: blur(70px);
+    opacity: 0.26;
+    transition: background-color var(--ambient) linear;
+    pointer-events: none;
+}
+:root.light .stage-glow { opacity: 0.22; }
+
+.player-slot {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    min-height: 320px;
+}
+
+.player {
+    --a-osc: #1d1d1fe0;
+    --a-osc-border: #ffffff1a;
+    --a-panel: #1b1b1df2;
+    --a-divider: #ffffff14;
+    --a-titlebar: #242426d0;
+    --a-osd: #1d1d1fd8;
+    --a-text: #ffffffeb;
+    --a-secondary: #ffffff99;
+    /* theme.slint's tertiary-text is #ffffff5c. Over a page it fails AA on the
+       playlist's paths, which people read here and only glance at there. */
+    --a-tertiary: #ffffff80;
+    --a-icon: #ffffffd9;
+    --a-hover: #ffffff14;
+    --a-pressed: #ffffff24;
+    --a-track: #ffffff38;
+    --a-fill: #ffffffcc;
+    --a-cache: #ffffff5c;
+    --a-field: #00000059;
+    --a-field-border: #ffffff1f;
+    --a-accent: #2f7ef6;
+    --a-selection: #2f7ef640;
+    --a-playing: #6cc4ac;
+    --a-close: #e5484d;
+
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border: 1px solid #ffffff24;
+    border-radius: var(--r-md);
+    background: #000;
+    box-shadow: 0 24px 70px #00000059;
+    color: var(--a-text);
+    font-size: 13px;
+    line-height: 1.35;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+.player:focus-visible { outline-offset: 3px; border-radius: var(--r-md); }
+.player :focus-visible { outline: 2px solid var(--a-accent); outline-offset: 1px; border-radius: 6px; }
+.player.is-idle { cursor: none; }
+
+.player button,
+.player input { font: inherit; color: inherit; }
+
+/* What runs when the fade is the point: everything over the picture is one of
+   these, and they go together. */
+.fades { transition: opacity var(--settle) ease-out; }
+.player.is-idle .fades { opacity: 0; pointer-events: none; }
+
+.picture { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; }
+.picture canvas {
+    display: block;
+    flex: none;
+    background: #000;
+}
+
+/* --------------------------------------------------------- the title bar */
+
+.titlebar {
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding-left: 4px;
+    background: var(--a-titlebar);
+    z-index: 3;
+}
+.tb-icon { width: 15px; height: 15px; color: #8cb4ff; }
+.tb-title {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tb-win { display: flex; margin-left: 4px; }
+.tb-win span {
+    display: grid;
+    place-items: center;
+    width: 40px; height: 32px;
+    color: var(--a-icon);
+}
+.tb-win .ico { width: 14px; height: 14px; }
+
+/* IconButton. The app's hover is a filled rounded square, and only where it
+   asks for one. */
+.ib {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 28px; height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--a-icon);
+    cursor: pointer;
+    transition: background-color var(--quick) ease-out, color var(--quick) ease-out;
+}
+span.ib { cursor: default; }
+button.ib:hover { background: var(--a-hover); color: #fff; }
+button.ib:active { background: var(--a-pressed); }
+.ib.is-active { color: #6ea5ff; }
+.ib .ico { width: 16px; height: 16px; }
+
+/* ------------------------------------------------------- the on-screen text */
+
+.osd {
+    position: absolute;
+    left: 16px; top: 44px;
+    max-width: min(420px, 70%);
+    padding: 8px 14px 9px;
+    border: 1px solid var(--a-osc-border);
+    border-radius: 8px;
+    background: var(--a-osd);
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    pointer-events: none;
+    z-index: 2;
+}
+.osd.is-on { opacity: 1; transition-duration: 80ms; }
+.osd-text {
+    display: block;
+    font-size: 22px;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.osd-bar {
+    display: block;
+    width: 180px;
+    height: 5px;
+    margin-top: 5px;
+    border-radius: 2.5px;
+    background: var(--a-track);
+    overflow: hidden;
+}
+.osd-bar i { display: block; height: 100%; border-radius: 2.5px; background: var(--a-fill); }
+
+.subs {
+    position: absolute;
+    left: 6%; right: 6%;
+    text-align: center;
+    color: #fff;
+    font-size: calc(var(--subs-size, 30px) * var(--subs-scale, 1));
+    line-height: 1.25;
+    text-shadow: 0 0 3px #000, 0 1px 3px #000, 0 0 8px #000;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ------------------------------------------------------ the controller */
+
+.osc {
+    --width: 460px;
+    position: absolute;
+    /* Centred in what the sidebar leaves, with any distance it has been
+       dragged added on. */
+    left: calc((100% - var(--sidebar, 0px) - var(--width)) / 2 + var(--drag-x, 0px));
+    bottom: calc(24px - var(--drag-y, 0px));
+    width: var(--width);
+    height: 74px;
+    border: 1px solid var(--a-osc-border);
+    border-radius: 10px;
+    background: var(--a-osc);
+    box-shadow: 0 8px 24px #00000059;
+    cursor: default;
+    z-index: 4;
+    touch-action: none;
+}
+.osc-volume {
+    position: absolute;
+    left: 10px; top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+.osc-volume .ib .ico { width: 18px; height: 18px; }
+
+/* The app's Slider, on a real range input. */
+.slider {
+    display: block;
+    width: 76px;
+    height: 16px;
+    margin: 0;
+    background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    --v: 50%;
+}
+.slider::-webkit-slider-runnable-track {
+    height: 3px;
+    border-radius: 1.5px;
+    background: linear-gradient(90deg, var(--a-fill) var(--v), var(--a-track) var(--v));
+}
+.slider::-moz-range-track { height: 3px; border-radius: 1.5px; background: var(--a-track); }
+.slider::-moz-range-progress { height: 3px; border-radius: 1.5px; background: var(--a-fill); }
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px; height: 12px;
+    margin-top: -4.5px;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+}
+.slider::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #fff; }
+
+.osc-transport {
+    position: absolute;
+    left: 50%; top: 4px;
+    width: 150px;
+    height: 36px;
+    margin-left: -75px;
+}
+.osc-transport .ib { position: absolute; top: 4px; width: 34px; }
+.osc-transport .ib .ico { width: 22px; height: 22px; }
+#oscLeft { left: 6px; }
+#oscRight { right: 6px; }
+.osc-transport #oscPlay { left: 55px; top: 0; width: 40px; height: 36px; }
+#oscPlay .ico { width: 26px; height: 26px; }
+.ico-play { display: none; }
+.player.is-paused .ico-play { display: block; }
+.player.is-paused .ico-pause { display: none; }
+
+/* The current speed, beside the button that changed it. */
+.osc-speed {
+    position: absolute;
+    top: 12px;
+    color: var(--a-secondary);
+    font-size: 10px;
+    pointer-events: none;
+}
+
+.osc-tools {
+    position: absolute;
+    right: 8px; top: 6px;
+    display: flex;
+    gap: 2px;
+}
+.osc-tools .ib { width: 24px; }
+.osc-tools .ib .ico { width: 17px; height: 17px; }
+
+.osc-time {
+    position: absolute;
+    top: 44px;
+    width: 58px;
+    height: 18px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--a-secondary);
+    font-size: 12px;
+    line-height: 18px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+#oscNow { left: 8px; }
+#oscEnd { right: 8px; cursor: pointer; }
+
+/* The seek bar: a 3px track in an 18px box, with the buffered range and the
+   A-B loop on the track, chapter ticks across it, and a 3x15 knob. */
+.seek {
+    position: absolute;
+    left: 70px; right: 70px; top: 44px;
+    height: 18px;
+    cursor: pointer;
+    touch-action: none;
+}
+.seek-track {
+    position: absolute;
+    left: 0; right: 0; top: 7.5px;
+    height: 3px;
+    border-radius: 1.5px;
+    background: var(--a-track);
+    overflow: hidden;
+}
+.seek-cache,
+.seek-fill,
+.seek-ab { position: absolute; left: 0; top: 0; bottom: 0; }
+.seek-cache { background: var(--a-cache); }
+.seek-fill { background: var(--a-fill); }
+.seek-ab { background: #f5a52466; }
+.seek-tick {
+    position: absolute;
+    top: 5.5px;
+    width: 1px;
+    height: 7px;
+    margin-left: -0.5px;
+    background: #ffffffb3;
+}
+.seek-knob {
+    position: absolute;
+    top: 1.5px;
+    width: 3px;
+    height: 15px;
+    margin-left: -1.5px;
+    border-radius: 1.5px;
+    background: #fff;
+    box-shadow: 0 0 2px #00000080;
+}
+
+/* The seek preview: the thumbnail at the hovered time, the time, and the
+   chapter there. Drawn by the same code as the picture. */
+.preview {
+    position: absolute;
+    bottom: 88px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 3px 3px 4px;
+    border: 1px solid var(--a-osc-border);
+    border-radius: 6px;
+    background: var(--a-osd);
+    box-shadow: 0 4px 12px #00000066;
+    text-align: center;
+    pointer-events: none;
+    z-index: 5;
+}
+.preview canvas { display: block; width: 176px; height: 99px; border-radius: 4px; }
+.preview-time { font-size: 12px; font-variant-numeric: tabular-nums; }
+.preview-chapter {
+    max-width: 176px;
+    color: var(--a-secondary);
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ---------------------------------------------------------- the sidebar */
+
+.sidebar {
+    position: absolute;
+    right: 0; top: 32px; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 340px;
+    padding: 14px 12px 12px;
+    border-left: 1px solid var(--a-divider);
+    background: var(--a-panel);
+    z-index: 3;
+    cursor: default;
+}
+.side-head { display: flex; align-items: center; gap: 8px; }
+.side-head .ib { width: 22px; height: 22px; }
+.side-head .ib .ico { width: 13px; height: 13px; }
+
+.segmented {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    padding: 2px;
+    border: 1px solid var(--a-field-border);
+    border-radius: 6px;
+    background: var(--a-field);
+}
+.segmented button {
+    flex: 1;
+    min-width: 0;
+    height: 22px;
+    padding: 0 2px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+}
+.segmented button:hover { background: var(--a-hover); }
+.segmented button[aria-pressed="true"] { background: var(--a-accent); color: #fff; }
+
+.side-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.side-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #ffffff38 transparent;
+    padding-right: 2px;
+}
+
+.pl-head { display: flex; align-items: center; height: 28px; margin-bottom: 8px; }
+.pl-count { flex: 1; color: var(--a-secondary); font-size: 11px; }
+.pl-head .ib .ico { width: 15px; height: 15px; }
+.pl-head .ib { width: 30px; }
+
+.row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 44px;
+    padding: 0 6px 0 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+}
+.row:hover { background: var(--a-hover); }
+.row-n {
+    display: grid;
+    place-items: center;
+    width: 18px;
+    flex: none;
+    color: var(--a-tertiary);
+    font-size: 11px;
+}
+.row-n .ico { width: 11px; height: 11px; color: var(--a-playing); }
+.row-id { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.row-title {
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.row-sub {
+    color: var(--a-tertiary);
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.row-time { flex: none; color: var(--a-secondary); font-size: 11px; font-variant-numeric: tabular-nums; }
+.row.is-current .row-title { color: var(--a-playing); font-weight: 600; }
+/* How much of it you watched. */
+.row-seen {
+    position: absolute;
+    left: 34px; bottom: 3px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--a-playing);
+    opacity: 0.7;
+}
+.row-chapter { height: 34px; }
+
+.side-foot { display: flex; gap: 6px; margin-top: 8px; }
+.side-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #ffffff14;
+    font-size: 13px;
+}
+.side-btn .ico { width: 13px; height: 13px; }
+.side-btn:last-child { margin-left: auto; }
+button.side-btn { border: 0; cursor: pointer; }
+button.side-btn:hover { background: var(--a-pressed); }
+
+.group + .group { margin-top: 18px; }
+.group-title {
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--a-divider);
+    color: var(--a-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+}
+.group .segmented { flex: none; }
+
+.line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 28px;
+    font-size: 13px;
+}
+.line > span:first-child { flex: 1; min-width: 0; }
+.line-read {
+    flex: none;
+    width: 42px;
+    color: var(--a-secondary);
+    font-size: 11px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.line .slider { flex: none; width: 150px; }
+.note-line { margin-top: 6px; color: var(--a-tertiary); font-size: 11px; }
+
+/* The toggle out of the preferences window, on a real checkbox. */
+.toggle {
+    position: relative;
+    flex: none;
+    width: 34px; height: 20px;
+    margin: 0;
+    border-radius: 10px;
+    background: #ffffff38;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    transition: background-color var(--quick) ease-out;
+}
+.toggle::after {
+    content: "";
+    position: absolute;
+    left: 2px; top: 2px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform var(--quick) ease-out;
+}
+.toggle:checked { background: var(--a-accent); }
+.toggle:checked::after { transform: translateX(14px); }
+
+.eq { display: flex; justify-content: space-between; gap: 2px; }
+.eq-band { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--a-tertiary); font-size: 9px; }
+/* The app's EqualizerBand: a 3px track and a 14x8 handle, on a real range input
+   stood on end. */
+.eq-band input {
+    display: block;
+    width: 20px;
+    height: 100px;
+    margin: 0;
+    background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    cursor: pointer;
+}
+.eq-band input::-webkit-slider-runnable-track { width: 3px; border-radius: 1.5px; background: var(--a-track); }
+.eq-band input::-moz-range-track { width: 3px; border-radius: 1.5px; background: var(--a-track); }
+.eq-band input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 8px;
+    margin-left: -5.5px;
+    border-radius: 2px;
+    background: #fff;
+}
+.eq-band input::-moz-range-thumb { width: 14px; height: 8px; border: 0; border-radius: 2px; background: #fff; }
+
+.track-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 30px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+}
+.track-row:hover { background: var(--a-hover); }
+.track-row[aria-pressed="true"] { background: var(--a-selection); }
+.track-row .ico { width: 12px; height: 12px; color: var(--a-playing); visibility: hidden; }
+.track-row[aria-pressed="true"] .ico { visibility: visible; }
+
+/* --------------------------------------------- picture-in-picture, in the page */
+
+/* The window's own place, while its picture is in the corner. */
+.pip-note {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--s3);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    color: var(--dim);
+    font-size: var(--t-title);
+}
+
+.player.is-pip {
+    position: fixed;
+    inset: auto 16px 16px auto;
+    width: min(384px, calc(100vw - 32px));
+    height: auto;
+    aspect-ratio: 16 / 9;
+    z-index: 30;
+    box-shadow: 0 18px 50px #00000080;
+}
+.player.is-pip .titlebar,
+.player.is-pip .osc,
+.player.is-pip .preview,
+.player.is-pip .sidebar,
+.player.is-pip .osd { display: none; }
+.pip-controls {
+    position: absolute;
+    inset: 0;
+    display: none;
+    place-items: center;
+    background: #00000059;
+    opacity: 0;
+    transition: opacity var(--settle) ease-out;
+}
+.player.is-pip .pip-controls { display: grid; }
+.player.is-pip:hover .pip-controls,
+.player.is-pip:focus-within .pip-controls { opacity: 1; }
+.pip-controls .ib { width: 44px; height: 44px; }
+.pip-controls .ib .ico { width: 28px; height: 28px; }
+.pip-back { position: absolute; right: 6px; top: 6px; width: 28px !important; height: 28px !important; }
+.pip-back .ico { width: 16px !important; height: 16px !important; }
+
+/* --------------------------------------------------------- full screen */
+
+.player:fullscreen { border: 0; border-radius: 0; }
+
+/* ---------------------------------------------------------- under the window */
+
+.stage-caption {
+    position: relative;
+    max-width: 78ch;
+    margin: var(--s4) auto 0;
+    color: var(--dim);
+    font-size: var(--t-body);
+    line-height: 1.6;
+    text-align: center;
+}
+
+kbd {
+    display: inline-block;
+    min-width: 1.7em;
+    padding: 0 0.42em;
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    background: var(--raised);
+    color: var(--text);
+    font-family: var(--ui);
+    font-size: 0.86em;
+    font-weight: var(--w-medium);
+    line-height: 1.5;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* -------------------------------------------------------------- bands */
+
+.band { padding: 96px 0; border-top: 1px solid var(--border); }
+.band-sunken { background: var(--sunken); }
+
+.section-label {
+    color: var(--faint);
+    font-size: var(--t-micro);
+    font-weight: var(--w-bold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.band h2 {
+    margin-top: var(--s3);
+    font-size: clamp(27px, 3.6vw, 40px);
+    font-weight: var(--w-bold);
+    line-height: 1.14;
+    letter-spacing: -0.02em;
+}
+.band h2.h2-ish, .h2-ish { font-size: clamp(21px, 2.4vw, 27px); letter-spacing: -0.015em; line-height: 1.2; }
+
+.deck {
+    max-width: 68ch;
+    margin-top: var(--s4);
+    color: var(--dim);
+    font-size: var(--t-deck);
+    line-height: 1.55;
+}
+.center .deck { margin-left: auto; margin-right: auto; }
+
+.note {
+    max-width: 76ch;
+    margin-top: var(--s5);
+    color: var(--dim);
+    font-size: var(--t-prose);
+    line-height: 1.7;
+}
+.center .note { margin-left: auto; margin-right: auto; }
+
+.two-up {
+    display: grid;
+    /* minmax, or a <pre> sets the width of its column instead of scrolling. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s6) 48px;
+}
+.two-up.has-head { margin-top: var(--s6); }
+.two-up p + p { margin-top: var(--s3); }
+.two-up p { color: var(--dim); line-height: 1.66; }
+.two-up .section-label + .h2-ish { margin-top: var(--s2); }
+.two-up article > h2 + p { margin-top: var(--s4); }
+.two-up .cmd,
+.two-up .usage { margin-top: var(--s4); }
+
+/* --------------------------------------------------- the subtitle figure */
+
+.folder {
+    margin-top: 40px;
+    padding: var(--s5);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    font-size: var(--t-body);
+    text-align: left;
+}
+.folder-path { color: var(--faint); font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere; }
+.folder ul { margin-top: var(--s3); }
+.folder li {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    min-height: 36px;
+    padding: 5px var(--s3);
+    border-radius: var(--r-sm);
+}
+.folder li + li { border-top: 1px solid var(--border); border-radius: 0; }
+.folder .ico { color: var(--faint); }
+.folder-name { flex: 1; min-width: 0; font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere; }
+.folder-why { flex: none; color: var(--dim); font-size: var(--t-small); text-align: right; }
+.folder li.is-video .ico,
+.folder li.is-match .ico { color: var(--accent); }
+.folder li.is-skip .folder-name,
+.folder li.is-skip .folder-why { color: var(--faint); }
+
+/* ---------------------------------------------- Jellyfin, in the window */
+
+.dark-window {
+    --a-text: #ffffffeb;
+    --a-secondary: #ffffff99;
+    --a-tertiary: #ffffff80;
+    --a-track: #ffffff38;
+    --a-playing: #6cc4ac;
+    --a-accent: #2f7ef6;
+    --a-divider: #ffffff14;
+    --a-osc-border: #ffffff1a;
+    overflow: hidden;
+    border: 1px solid #ffffff24;
+    border-radius: var(--r-md);
+    background: #141416;
+    box-shadow: 0 24px 60px #00000040;
+    color: var(--a-text);
+    font-size: 13px;
+    line-height: 1.35;
+    text-align: left;
+}
+
+.library { margin-top: 40px; }
+.lib-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    height: 44px;
+    padding: 0 var(--s3);
+    border-bottom: 1px solid var(--a-divider);
+}
+.lib-nav { display: flex; gap: 2px; min-width: 0; overflow: hidden; }
+.lib-nav span {
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: var(--a-secondary);
+    white-space: nowrap;
+}
+.lib-nav .is-on { background: var(--a-accent); color: #fff; }
+.lib-server {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    color: var(--a-secondary);
+    font-size: 12px;
+    white-space: nowrap;
+}
+.lib-server .ico { width: 14px; height: 14px; }
+.lib-body { padding: var(--s3) var(--s4) var(--s4); }
+.lib-strip-title { margin: var(--s2) 0; font-size: 15px; font-weight: 600; }
+.lib-cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s3);
+}
+.lib-card { min-width: 0; }
+.lib-art {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #000;
+}
+.lib-art canvas { display: block; width: 100%; height: 100%; }
+.lib-progress {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 4px;
+    background: #00000099;
+}
+.lib-progress i { display: block; height: 100%; background: var(--a-playing); }
+.lib-title {
+    display: block;
+    margin-top: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.lib-sub {
+    display: block;
+    color: var(--a-secondary);
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bullets { margin-top: var(--s4); color: var(--dim); }
+.bullets li { position: relative; padding-left: 18px; line-height: 1.66; }
+.bullets li + li { margin-top: var(--s2); }
+.bullets li::before {
+    content: "";
+    position: absolute;
+    left: 2px; top: 0.72em;
+    width: 6px; height: 2px;
+    background: var(--accent);
+}
+
+/* --------------------------------------------------- music mode */
+
+.music-layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 64px;
+    align-items: center;
+}
+.music {
+    width: 300px;
+    justify-self: center;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.music-cover { display: block; width: 100%; aspect-ratio: 1; }
+.music-strip {
+    position: relative;
+    height: 72px;
+    background: #1b1b1df2;
+    text-align: center;
+}
+.music-id { position: absolute; inset: 7px 24px auto; transition: opacity var(--settle) ease-out; }
+.music-title { display: block; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.music-sub { display: block; margin-top: 3px; color: var(--a-secondary); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The title gives way to the transport row while the pointer is over it. */
+.music-transport {
+    position: absolute;
+    left: 0; right: 0; top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    color: #ffffffd9;
+    opacity: 0;
+    transition: opacity var(--settle) ease-out;
+}
+.music-transport .ico { width: 20px; height: 20px; }
+.music-transport .ico-big { width: 24px; height: 24px; }
+.music:hover .music-id { opacity: 0; }
+.music:hover .music-transport { opacity: 1; }
+.music-seek {
+    position: absolute;
+    left: 14px; right: 14px; top: 46px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--a-secondary);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+.music-bar { position: relative; flex: 1; height: 3px; border-radius: 1.5px; background: var(--a-track); }
+.music-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 21%; border-radius: 1.5px; background: #ffffffcc; }
+.music-bar b { position: absolute; left: 21%; top: -6px; width: 3px; height: 15px; margin-left: -1.5px; border-radius: 1.5px; background: #fff; }
+.music-drawer { padding: 14px 12px 12px; border-top: 1px solid var(--a-divider); background: #1b1b1df2; }
+.music-tabs {
+    display: flex;
+    padding: 2px;
+    border: 1px solid #ffffff1f;
+    border-radius: 6px;
+    background: #00000059;
+}
+.music-tabs span { flex: 1; height: 22px; border-radius: 4px; line-height: 22px; text-align: center; }
+.music-tabs .is-on { background: var(--a-accent); color: #fff; }
+.music-count { margin-top: 12px; color: var(--a-secondary); font-size: 11px; }
+.music-row { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 6px 0 8px; }
+.music-row:first-of-type { margin-top: 6px; }
+.music-row .row-title { display: block; }
+.music-row .row-sub { display: block; }
+.music-row.is-current .row-title { color: var(--a-playing); font-weight: 600; }
+
+/* ---------------------------------------------------------- the keys */
+
+.keys {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 48px;
+    margin-top: 40px;
+}
+.keys div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s4);
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--t-body);
+}
+.keys dt { color: var(--dim); }
+.keys dd { flex: none; }
+
+/* --------------------------------------------------------- cmd blocks */
+
+.cmd {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s2);
+    margin-top: var(--s3);
+    padding: var(--s3) var(--s3) var(--s3) var(--s4);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--sunken);
+    text-align: left;
+}
+.band-sunken .cmd { background: var(--bg); }
+.cmd code {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    color: var(--text);
+    font-size: var(--t-body);
+    line-height: 30px;
+    white-space: pre;
+    scrollbar-width: thin;
+}
+.cmd-dim code { color: var(--dim); }
+.cmd .copy {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 30px; height: 30px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--faint);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--quick) ease-out, color var(--quick) ease-out;
+}
+.cmd:hover .copy,
+.cmd .copy:focus-visible { opacity: 1; }
+.cmd .copy:hover { color: var(--text); background: var(--hover); }
+.cmd.is-copied .copy { opacity: 1; color: var(--accent); }
+
+.usage {
+    padding: var(--s4);
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--sunken);
+    color: var(--dim);
+    font-size: 12.5px;
+    line-height: 1.75;
+    scrollbar-width: thin;
+    text-align: left;
+}
+.band-sunken .usage { background: var(--bg); }
+.usage-beside { margin-top: var(--s5); }
+.usage b { color: var(--text); font-weight: 400; }
+.usage i { color: var(--faint); font-style: normal; }
+
+.downloads { display: flex; justify-content: center; gap: var(--s3); margin-top: var(--s5); }
+.fingerprint { overflow-wrap: anywhere; color: var(--text); }
+
+/* ------------------------------------------------------- the colophon */
+
+.colophon { padding: 64px 0; border-top: 1px solid var(--border); }
+.colophon-inner { display: flex; flex-direction: column; gap: var(--s4); }
+.colophon-brand { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s3); }
+.colophon-brand .brand-icon { width: 38px; height: 38px; margin: -4px; }
+.colophon .wordmark { font-size: 24px; }
+.colophon-brand p { width: 100%; color: var(--dim); font-size: var(--t-body); }
+.colophon-links { display: flex; flex-wrap: wrap; gap: var(--s5); font-size: var(--t-body); }
+.colophon-links a { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.colophon-links a:hover { text-decoration: underline; }
+.colophon-links .ico { width: 13px; height: 13px; }
+.colophon-small { max-width: 76ch; color: var(--faint); font-size: var(--t-small); line-height: 1.6; }
+
+/* ------------------------------------------------------------ the prose
+ *
+ * Long-form text, for the privacy page: the bands' column and inks, headings a
+ * step down from theirs, and the list markers the base reset takes away given
+ * back, because a list of what is kept should read as a list.
+ */
+
+.prose { padding: 72px 0 96px; border-top: 1px solid var(--border); }
+.prose section + section { margin-top: 72px; }
+.prose h2 {
+    margin-top: var(--s3);
+    font-size: clamp(23px, 2.8vw, 30px);
+    font-weight: var(--w-bold);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+.prose h3 {
+    margin-top: var(--s6);
+    font-size: var(--t-heading);
+    font-weight: var(--w-medium);
+    line-height: 1.35;
+}
+.prose p,
+.prose ul { margin-top: var(--s3); color: var(--dim); line-height: 1.7; }
+.prose ul { padding-left: 1.25em; list-style: disc; }
+.prose li + li { margin-top: var(--s2); }
+.prose li::marker { color: var(--faint); }
+.prose strong { color: var(--text); font-weight: var(--w-medium); }
+/* Paths and file names run long and have no spaces to break at. */
+.prose code { color: var(--text); overflow-wrap: anywhere; }
+
+/* Where a thing lives, one platform to a line, the name in a column of its own
+   so that a path long enough to wrap wraps under itself. */
+.prose .paths { padding-left: 0; list-style: none; }
+.prose .paths li {
+    display: grid;
+    grid-template-columns: 6.5em minmax(0, 1fr);
+    gap: 0 var(--s2);
+}
+.prose .paths li + li { margin-top: var(--s1); }
+.paths b { color: var(--text); font-weight: var(--w-medium); }
+
+/* -------------------------------------------------------------- narrow
+ *
+ * The app has no phone layout and its metainfo says so, but a video player
+ * folds better than most: the picture stays, and the controller loses what
+ * stops fitting, in the order you would miss it least.
+ */
+
+@media (max-width: 1000px) {
+    .head-nav { display: none; }
+    .head-actions { margin-left: auto; }
+    .lib-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .lib-cards > :nth-child(4) { display: none; }
+}
+
+@media (max-width: 900px) {
+    .hero { padding: 56px 0 48px; }
+    .band { padding: 64px 0; }
+    .prose { padding: 48px 0 64px; }
+    .prose section + section { margin-top: 56px; }
+    .window-section { padding-bottom: 64px; }
+    .two-up { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+    .music-layout { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+    .music { justify-self: center; }
+    .keys { grid-template-columns: minmax(0, 1fr); }
+    .tb-win { display: none; }
+}
+
+@media (max-width: 760px) {
+    .wrap, .wrap-wide, .head-inner { padding: 0 var(--s4); }
+    .hero-actions { gap: var(--s2); }
+    .hero-actions .btn-lg { width: 100%; }
+    .downloads { flex-direction: column; }
+    .folder { padding: var(--s3); }
+    .folder li { flex-wrap: wrap; gap: 2px var(--s3); }
+    .folder-why { width: 100%; padding-left: 28px; text-align: left; }
+
+    .player-slot { aspect-ratio: auto; min-height: 0; height: 300px; }
+    .sidebar { width: 100%; }
+    .player.has-sidebar .osc { display: none; }
+    .osc { --width: calc(100% - 16px); left: 8px; bottom: 8px; touch-action: auto; }
+    .preview { display: none; }
+    .osd-text { font-size: 18px; }
+    .lib-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .lib-cards > :nth-child(3) { display: none; }
+    .lib-nav span:nth-child(n + 4) { display: none; }
+}
+
+@media (max-width: 460px) {
+    .osc-volume { display: none; }
+    .osc-transport { left: 8px; margin-left: 0; width: 132px; }
+    #oscRight { right: 0; }
+    .osc-transport #oscPlay { left: 46px; }
+    .osc-tools .pip-tool { display: none; }
+    .lib-server { display: none; }
+    .head-actions .btn:not(.btn-primary):not(.btn-icon) { display: none; }
+    .line .slider { width: 110px; }
+}
+
+/* Where there is no pointer there is no hover, so the copy button has to be
+   visible without one. */
+@media (hover: none) {
+    .cmd .copy { opacity: 1; }
+    .player.is-pip .pip-controls { opacity: 1; background: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* --------------------------------------------------------------- print */
+
+@media print {
+    :root, :root.light {
+        --bg: #ffffff;
+        --accent-ink: #ffffff;
+        --surface: #ffffff;
+        --raised: #ffffff;
+        --sunken: #ffffff;
+        --text: #000000;
+        --dim: #333333;
+        --faint: #555555;
+        --border: #cccccc;
+        --border-strong: #999999;
+        --accent: #0e5c4b;
+    }
+    .site-head, .skip, .window-section, .cmd .copy, .library, .music,
+    .colophon-links { display: none; }
+    .band { padding: 24px 0; break-inside: avoid; }
+    a { color: inherit; text-decoration: underline; }
+}
