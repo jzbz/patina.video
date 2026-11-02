@@ -732,8 +732,8 @@
       Check it before trusting any of the above:
     </p>
 
-    <div class="cmd cmd-dim" data-copy="gpg --verify SHA256SUMS.asc SHA256SUMS &amp;&amp; sha256sum --check --ignore-missing SHA256SUMS">
-      <code>gpg --verify SHA256SUMS.asc SHA256SUMS &amp;&amp; sha256sum --check --ignore-missing SHA256SUMS</code>
+    <div class="cmd cmd-dim" data-copy="gpg --verify SHA256SUMS.asc SHA256SUMS &amp;&amp; sha256sum -c SHA256SUMS">
+      <code>gpg --verify SHA256SUMS.asc SHA256SUMS &amp;&amp; sha256sum -c SHA256SUMS</code>
       <button class="copy" type="button" aria-label="Copy the verification command">
         <svg class="ico" aria-hidden="true"><use href="#i-copy"/></svg>
       </button>
