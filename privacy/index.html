@@ -92,12 +92,12 @@
 
 <section class="hero" id="top">
   <div class="wrap">
-    <p class="eyebrow">Privacy policy &middot; effective 2026-11-02</p>
+    <p class="eyebrow">Privacy policy &middot; effective 2026-11-05</p>
     <h1 class="hero-h1">Privacy.</h1>
     <p class="hero-deck">
       Patina has no account and sends nothing to its developer. It plays what
       you open, keeps your history on your computer, and talks to the services
-      you set up yourself. This page says exactly what, where and when.
+      you choose to use. This page says exactly what, where and when.
     </p>
     <p class="negations"><span>no account</span><span>no telemetry</span><span>no analytics</span><span>no crash reports</span><span>no update check</span></p>
   </div>
@@ -131,9 +131,15 @@
           key. A search sends the file's hash, its name and your languages.
         </li>
         <li>
-          <strong>Jellyfin</strong> is off until you add a server. After that
-          Patina talks to that server when it starts, and tells it what you play
-          and how far you have got.
+          <strong>Jellyfin</strong> is off until you add a server. Patina then
+          talks to a server when you pick it, and tells it what you play and how
+          far you have got.
+        </li>
+        <li>
+          <strong>YouTube</strong> has no account, and nothing goes until you open
+          its section. Opening it asks YouTube about the channels you follow, so
+          Google can see your IP address and those channels, along with what you
+          search for and play.
         </li>
       </ul>
       <p>
@@ -212,6 +218,18 @@
           <code>jellyfin/images/</code> &mdash; posters from those servers, limited
           to 256&nbsp;MB by default.
         </li>
+        <li>
+          <code>youtube.json</code> &mdash; the YouTube section's lists: the channels
+          you follow, Watch Later with when each was added, watched marks and how far
+          you got, the paths of what you downloaded, and the Shorts switch.
+        </li>
+        <li><code>youtube-feed.json</code> &mdash; the saved feed of those channels.</li>
+        <li>
+          <code>youtube-images/</code> &mdash; thumbnails of what was on screen, search
+          results included, limited to 128&nbsp;MB. Your searches themselves are not kept
+          or logged, though the text is on yt-dlp's command line while it runs, where a
+          process list can show it.
+        </li>
       </ul>
 
       <h3>Elsewhere</h3>
@@ -270,7 +288,15 @@
           does signing out.
         </li>
         <li>
-          There is no button yet for <code>online-subtitles/</code>, and none for
+          For the YouTube section, every way of clearing the history above also clears
+          the watched marks, and removing one history entry clears that video's. With
+          Remember playback history off, none are noted, though you can still mark a
+          video by hand. Clear Saved Positions clears where videos were left off and
+          keeps what was seen of them.
+        </li>
+        <li>
+          There is no button yet for <code>online-subtitles/</code> or
+          <code>youtube-images/</code>, and none for
           removing a server from <code>jellyfin.json</code>. Signing out removes your
           user name and ID but leaves the server's entry and the device ID. Delete
           the folder or the file by hand.
@@ -324,22 +350,23 @@
       <p class="section-label">The network</p>
       <h2 id="network-h">What leaves your computer.</h2>
       <p>
-        With no Jellyfin server signed in, Patina makes no connection of its own at
-        startup or while it sits idle. Everything below is something you opened or
-        set up. It never contacts the developer, and it never checks for updates.
+        Patina makes no connection of its own at startup or while it sits idle.
+        Everything below is something you opened or set up. It never contacts the
+        developer, and it never checks for updates.
       </p>
 
       <h3>What you open</h3>
       <p>
         When you open a URL or a stream, mpv connects to it directly from your IP
-        address, like any other player. The HTTP proxy and user agent preferences
-        are passed to mpv.
+        address, like any other player. The HTTP proxy preference is passed to mpv
+        and yt-dlp, and the user agent preference to mpv. OpenSubtitles and Jellyfin
+        requests don't read the proxy preference.
       </p>
       <p>
         <strong>Play videos from websites with yt-dlp</strong> is on by default, so
         a web address can be handed to yt-dlp, which fetches the page. What yt-dlp
         sends is up to yt-dlp and to your own yt-dlp configuration, which Patina's
-        Downloads window does not ignore. For YouTube it may use a JavaScript
+        downloads from those pages do not ignore. For YouTube it may use a JavaScript
         runtime such as Deno. The Flatpak carries both; elsewhere they are whichever
         you have installed.
       </p>
@@ -378,9 +405,10 @@
 
       <h3>Jellyfin</h3>
       <p>
-        Patina talks only to servers you add. <strong>Once you are signed in, it
-        contacts that server every time it starts</strong>, without being asked, to
-        load the library in the idle window.
+        Patina talks only to servers you add. When it starts it reads your sign-in from
+        the password store and lists your servers from <code>jellyfin.json</code>, and
+        it contacts a server only once you pick it on the welcome screen, or play
+        something of its from Recent.
       </p>
       <ul>
         <li>
@@ -411,6 +439,68 @@
           not added.
         </li>
       </ul>
+
+      <h3 id="youtube">YouTube</h3>
+      <p>
+        The YouTube section has no account, and Patina never signs in to Google. No
+        cookie of yours goes with its requests: its calls to yt-dlp ignore your yt-dlp
+        configuration and options, all but the proxy. Nothing goes at startup, on the
+        welcome screen or in the background, and leaving the section stops what is on its
+        way. Requests start from:
+      </p>
+      <ul>
+        <li>
+          <strong>Opening it, or coming back to it from a video:</strong> if the last check
+          is over 30 minutes old (an hour after YouTube refused), it asks about the channels
+          that haven't answered in that time, and fetches the titles of saved videos that
+          have none. Your lists stay in Patina, but bringing them up to date still shows them
+          to Google.
+        </li>
+        <li>
+          <strong>What you do:</strong> Update Now, a search on Enter (never while typing),
+          adding or opening a channel, importing a list, playing and downloading.
+        </li>
+        <li>
+          <strong>What is on screen:</strong> thumbnails and channel pictures for the lines in
+          sight and two screens' worth each way, unless they are already saved.
+        </li>
+      </ul>
+      <p>What those send, all from your IP address, or your proxy's if you set one:</p>
+      <ul>
+        <li>to <code>www.youtube.com</code>, a channel's ID for each one asked about, one request per channel, with a user agent naming Patina and its version;</li>
+        <li>through yt-dlp, to <code>www.youtube.com</code>: channels' IDs, your search text, the <code>@handle</code> or ID you pasted, or a video's ID. yt-dlp identifies itself as its own clients do, not as Patina, and what it asks can change with its version;</li>
+        <li>to play or download, the video's ID, then mpv or yt-dlp asks <code>googlevideo.com</code> for the stream;</li>
+        <li>to <code>i.ytimg.com</code>, <code>yt3.googleusercontent.com</code> and <code>yt3.ggpht.com</code>, requests for thumbnails and channel pictures, which show the video or channel, with the same user agent and no cookie.</li>
+      </ul>
+      <p>
+        <strong>So Google can see, from one address, which channels you follow, what you
+        search for, what you play or download, and what scrolled by,</strong> and can tie those
+        together by that address. A proxy or VPN moves that from your address to the proxy's. A
+        proxy that can't be used is an error, and nothing goes direct instead.
+      </p>
+      <p>
+        These stay on your computer: the lists as files, anything you import, when you added
+        something to Watch Later, watched marks and progress, and download paths. How far you
+        have got in a video is reported to no one; the stream requests are all YouTube sees of a
+        viewing. Nothing goes to the developer, or to anyone but YouTube and a proxy you set.
+      </p>
+      <p>
+        <strong>Play videos from websites with yt-dlp</strong> off stops every use of yt-dlp. A
+        section opened with it off still reads channel feeds and fetches thumbnails, which aren't
+        yt-dlp. Patina doesn't update yt-dlp itself.
+      </p>
+      <p>
+        A YouTube address opened some other way, with Open URL or a <code>patina://</code> link,
+        isn't the section's. It goes through mpv with your own yt-dlp options and configuration,
+        as any web address does, and those can hold cookies.
+      </p>
+      <p>
+        YouTube's terms bar downloading and automated access, along with getting around their
+        technical measures, except for what YouTube allows or permits in writing. This section does
+        those things through yt-dlp and in reading channel feeds. YouTube can refuse an address, and
+        Patina says so when it does. That is stated here as a fact and not as legal advice. Using the
+        section is your choice, and nothing else in Patina depends on it.
+      </p>
 
       <h3><code>patina://</code> links</h3>
       <p>
@@ -513,7 +603,7 @@
         this page is wrong about what Patina does, that is a bug; please report it.
       </p>
       <p>
-        Effective 2026-11-02. When a release changes anything described here, this page changes with it, and so does the date.
+        Effective 2026-11-05. When a release changes anything described here, this page changes with it, and so does the date.
       </p>
     </section>
 

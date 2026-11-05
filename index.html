@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Patina — a media player for Linux, macOS and Windows</title>
-<meta name="description" content="A media player built on mpv: video edge to edge, a floating controller, subtitles that find themselves, online video and your Jellyfin library. Linux, macOS and Windows.">
+<meta name="description" content="A media player built on mpv: video edge to edge, a floating controller, subtitles that find themselves, and built-in clients for Jellyfin and YouTube. Linux, macOS and Windows.">
 <meta name="color-scheme" content="dark light">
 <link rel="icon" href="assets/images/icon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon.png" sizes="32x32">
@@ -16,7 +16,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Patina">
 <meta property="og:title" content="Patina — a media player for Linux, macOS and Windows">
-<meta property="og:description" content="Built on mpv: video edge to edge, a floating controller, subtitles that find themselves, online video and your Jellyfin library.">
+<meta property="og:description" content="Built on mpv: video edge to edge, a floating controller, subtitles that find themselves, and built-in clients for Jellyfin and YouTube.">
 <!-- Absolute on purpose: link scrapers fetch this without page context, so a
      relative path would resolve against nothing and the card would lose its
      image. The only two places the domain is written down. -->
@@ -93,6 +93,8 @@
     <symbol viewBox="0 0 24 24" id="i-folder"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
     <symbol viewBox="0 0 24 24" id="i-film"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/></symbol>
     <symbol viewBox="0 0 24 24" id="i-download"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-chevron-left"><path d="m15 18-6-6 6-6"/></symbol>
     <symbol viewBox="0 0 24 24" id="i-external"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
     <symbol viewBox="0 0 24 24" id="i-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
   </defs>
@@ -121,6 +123,7 @@
       <a href="#window">The window</a>
       <a href="#subtitles">Subtitles</a>
       <a href="#jellyfin">Jellyfin</a>
+      <a href="#youtube">YouTube</a>
       <a href="#music">Music mode</a>
     </nav>
 
@@ -148,7 +151,8 @@
     <p class="hero-deck">
       Everything mpv can play, in a window with nothing in it but the picture.
       The title bar and a floating controller come when you move the mouse and
-      go when you stop. The same player on all three desktops.
+      go when you stop. Built-in clients for Jellyfin and YouTube, and the same
+      player on all three desktops.
     </p>
     <p class="hero-stack">Rust throughout &middot; Slint for the interface &middot; mpv for playback</p>
     <p class="negations"><span>no webview</span><span>no Electron</span><span>no account</span><span>no telemetry</span></p>
@@ -446,12 +450,12 @@
 <section class="band band-sunken" id="jellyfin">
   <div class="wrap">
     <div class="center">
-      <p class="section-label">YOUR OWN SERVER</p>
+      <p class="section-label">BUILT-IN JELLYFIN CLIENT</p>
       <h2>Your Jellyfin library, in the player window.</h2>
       <p class="deck">
-        Once you have signed in, the idle window shows your server's films,
-        shows and music in place of the welcome screen, and what you pick plays
-        right there.
+        Sign in and your servers are listed on the welcome screen. Pick one and
+        its films, shows and music are in the player window, and what you pick
+        plays right there.
       </p>
     </div>
 
@@ -529,8 +533,100 @@
   </div>
 </section>
 
+<!-- ---------------------------------------------------------- youtube -->
+<section class="band" id="youtube">
+  <div class="wrap">
+    <div class="center">
+      <p class="section-label">BUILT-IN YOUTUBE CLIENT</p>
+      <h2>YouTube in the player window, with no account.</h2>
+      <p class="deck">
+        A feed of the channels you follow, search, a Watch Later list and
+        downloads, opened from the welcome screen. Patina never signs in to
+        Google, and what you pick plays in mpv like anything else.
+      </p>
+    </div>
+
+    <!-- The Feed page, from ui/youtube.slint and ui/youtube-card.slint. Every
+         channel and title is invented, and the thumbnails are frames from the
+         test patterns. docs/youtube.md: the plain word and a generic icon, and
+         none of their logos. -->
+    <figure class="library dark-window" role="img"
+            aria-label="An illustration of the YouTube section: a bar with Feed, Search, Watch Later and Channels, and a grid of video cards with durations and progress bars.">
+      <div class="lib-bar">
+        <svg class="ico yt-back" aria-hidden="true"><use href="#i-chevron-left"/></svg>
+        <span class="yt-word">YouTube</span>
+        <div class="lib-nav">
+          <span class="is-on">Feed</span><span>Search</span><span>Watch Later</span><span>Channels</span>
+        </div>
+      </div>
+      <div class="lib-body">
+        <div class="yt-status">
+          <span>Updated 4 minutes ago</span>
+          <span class="yt-shorts">Shorts</span>
+          <svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>
+        </div>
+        <div class="lib-cards">
+          <div class="lib-card">
+            <span class="lib-art"><canvas data-pattern="0" data-time="70"></canvas><span class="yt-badge">12:04</span><span class="lib-progress"><i style="width:36%"></i></span></span>
+            <span class="lib-title">The Whole Set, Slowly</span><span class="lib-sub">Fractal Walks &middot; 3 hours ago</span>
+          </div>
+          <div class="lib-card">
+            <span class="lib-art"><canvas data-pattern="3" data-time="14"></canvas><span class="yt-badge">8:41</span></span>
+            <span class="lib-title">Three Neighbours</span><span class="lib-sub">Cell Block &middot; 5 hours ago</span>
+          </div>
+          <div class="lib-card">
+            <span class="lib-art"><canvas data-pattern="4" data-time="30"></canvas><span class="yt-badge yt-live">LIVE</span></span>
+            <span class="lib-title">Slow Colour, All Night</span><span class="lib-sub">Quiet Channel</span>
+          </div>
+          <div class="lib-card">
+            <span class="lib-art"><canvas data-pattern="5" data-time="40"></canvas><span class="yt-badge">21:17</span></span>
+            <span class="lib-title">Each Row From the Last</span><span class="lib-sub">Cell Block &middot; 1 day ago</span>
+          </div>
+        </div>
+        <div class="lib-cards yt-row">
+          <div class="lib-card">
+            <span class="lib-art"><canvas data-pattern="2" data-time="44"></canvas><span class="yt-badge">3:21</span></span>
+            <span class="lib-title">Every Hue, In Order</span><span class="lib-sub">Signal Path &middot; 2 days ago</span>
+          </div>
+          <div class="lib-card">
+            <span class="lib-art"><canvas data-pattern="0" data-time="150"></canvas><span class="yt-badge">16:52</span><span class="lib-progress"><i style="width:80%"></i></span></span>
+            <span class="lib-title">Down Seahorse Valley</span><span class="lib-sub">Fractal Walks &middot; 4 days ago</span>
+          </div>
+          <div class="lib-card">
+            <span class="lib-art"><canvas data-pattern="6" data-time="40"></canvas><span class="yt-badge">3:09</span></span>
+            <span class="lib-title">Please Stand By</span><span class="lib-sub">Signal Path &middot; 1 week ago</span>
+          </div>
+          <div class="lib-card">
+            <span class="lib-art"><canvas data-pattern="1" data-time="20"></canvas><span class="yt-badge">2:34</span></span>
+            <span class="lib-title">A Tone, Explained</span><span class="lib-sub">Signal Path &middot; 2 weeks ago</span>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+    <div class="two-up has-head">
+      <article>
+        <h3 class="h2-ish">The lists are yours.</h3>
+        <ul class="bullets">
+          <li>Follow a channel by its link or <code>@handle</code>, from search, or by importing your subscriptions from Google's data export. You can export them the same way.</li>
+          <li>Watch Later and your channels are kept by Patina and don't appear on YouTube. Your place in a video and what you've watched stay on your computer.</li>
+          <li>Videos play up to your screen's resolution by default, and go back to the feed when they end.</li>
+        </ul>
+      </article>
+      <article>
+        <h3 class="h2-ish">No account isn't no trace.</h3>
+        <ul class="bullets">
+          <li>Nothing goes until you open it. Opening it asks YouTube about the channels you follow, so Google can see your address and those channels, along with what you search for and play.</li>
+          <li>The HTTP proxy preference covers all of it, and nothing goes direct if the proxy can't be used. Nothing goes to the developer. <a href="privacy/#youtube">The privacy page</a> has the details.</li>
+          <li>YouTube's terms bar downloading and automated access, which this does through yt-dlp. Using it is your choice, and nothing else in Patina depends on it.</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
 <!-- ------------------------------------------------------- music mode -->
-<section class="band" id="music">
+<section class="band band-sunken" id="music">
   <div class="wrap">
     <div class="music-layout">
       <!-- ui/music.slint: the cover, the 72px strip whose title gives way to the
@@ -593,7 +689,7 @@
 </section>
 
 <!-- ----------------------------------------------------- online + cli -->
-<section class="band band-sunken" id="online">
+<section class="band" id="online">
   <div class="wrap">
     <div class="two-up">
       <article>
@@ -629,7 +725,7 @@
 </section>
 
 <!-- ------------------------------------------------------------- keys -->
-<section class="band" id="keys">
+<section class="band band-sunken" id="keys">
   <div class="wrap">
     <div class="two-up">
       <div>
@@ -666,7 +762,7 @@
 </section>
 
 <!-- -------------------------------------------------------------- get -->
-<section class="band band-sunken" id="get">
+<section class="band" id="get">
   <div class="wrap wrap-narrow center">
     <p class="section-label">GET IT</p>
     <h2>Download.</h2>
@@ -720,7 +816,7 @@
     </div>
 
     <p class="note">
-      On macOS and Windows, online video also needs
+      On macOS and Windows, online video and the YouTube client also need
       <a href="https://github.com/yt-dlp/yt-dlp">yt-dlp</a> installed. The Flatpak
       brings its own.
     </p>
