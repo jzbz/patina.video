@@ -500,24 +500,6 @@
     var FOLDER = "~/Videos/Test Patterns";
     var ARROW_SPEEDS = [0.03125, 0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32];
 
-    /* ------------------------------------------- pictures that stay still */
-
-    /* The library's cards are frames from the same patterns. */
-    function drawStills() {
-        Array.prototype.forEach.call(document.querySelectorAll("canvas[data-pattern]"), function (canvas) {
-            var file = FILES[parseInt(canvas.dataset.pattern, 10)];
-            canvas.width = 320;
-            canvas.height = 180;
-            file.make()(canvas.getContext("2d"), 320, 180, parseFloat(canvas.dataset.time), file.length);
-        });
-    }
-
-    if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(drawStills);
-    } else {
-        drawStills();
-    }
-
     /* ------------------------------------------------------- the window */
 
     var player = document.getElementById("player");

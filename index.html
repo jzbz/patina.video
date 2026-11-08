@@ -459,11 +459,12 @@
       </p>
     </div>
 
-    <!-- The Home page's strips, from ui/library.slint. Every title is invented,
-         and the pictures are frames from the test patterns above, which is what
-         this server has been collecting. -->
+    <!-- The Home page's strips, from ui/library.slint: landscape cards at 288px
+         and posters at 180px in the app. Every title is invented, and so is every
+         picture: assets/images/demo holds stills drawn from noise and gradients,
+         so none of it is anyone's film. -->
     <figure class="library dark-window" role="img"
-            aria-label="An illustration of the library: a bar with Home, Movies, Shows and Music, and strips of cards for Continue Watching and Next Up, each with a progress bar.">
+            aria-label="An illustration of the library: a bar with Home, Movies, Shows and Music, a Continue Watching strip of film stills with progress bars, and a row of film posters under Latest Movies.">
       <div class="lib-bar">
         <div class="lib-nav">
           <span class="is-on">Home</span><span>Movies</span><span>Shows</span><span>Music</span>
@@ -474,39 +475,47 @@
         <p class="lib-strip-title">Continue Watching</p>
         <div class="lib-cards">
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="0" data-time="110"></canvas><span class="lib-progress"><i style="width:34%"></i></span></span>
-            <span class="lib-title">Mandelbrot Set</span><span class="lib-sub">Seahorse Valley &middot; 4 min left</span>
+            <span class="lib-art"><img src="assets/images/demo/jf-long-tide.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="lib-progress"><i style="width:34%"></i></span></span>
+            <span class="lib-title">The Long Tide</span><span class="lib-sub">S1:E3 &middot; The Stacks</span>
           </div>
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="3" data-time="26"></canvas><span class="lib-progress"><i style="width:62%"></i></span></span>
-            <span class="lib-title">Game of Life</span><span class="lib-sub">S1:E2 &middot; Second Soup</span>
+            <span class="lib-art"><img src="assets/images/demo/jf-northern-quiet.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="lib-progress"><i style="width:62%"></i></span></span>
+            <span class="lib-title">Northern Quiet</span><span class="lib-sub">38 min left</span>
           </div>
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="4" data-time="71"></canvas><span class="lib-progress"><i style="width:15%"></i></span></span>
-            <span class="lib-title">Gradient Drift</span><span class="lib-sub">Still Drifting &middot; 6 min left</span>
+            <span class="lib-art"><img src="assets/images/demo/jf-salt-flats.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="lib-progress"><i style="width:15%"></i></span></span>
+            <span class="lib-title">Salt and Sand</span><span class="lib-sub">S2:E1 &middot; The Crossing</span>
           </div>
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="6" data-time="17"></canvas><span class="lib-progress"><i style="width:80%"></i></span></span>
-            <span class="lib-title">Test Card</span><span class="lib-sub">Please Stand By &middot; 1 min left</span>
+            <span class="lib-art"><img src="assets/images/demo/jf-low-cloud.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="lib-progress"><i style="width:80%"></i></span></span>
+            <span class="lib-title">Low Cloud</span><span class="lib-sub">S1:E5 &middot; Into the Pines</span>
           </div>
         </div>
-        <p class="lib-strip-title">Next Up</p>
-        <div class="lib-cards">
+        <p class="lib-strip-title">Latest Movies</p>
+        <div class="lib-posters">
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="5" data-time="60"></canvas></span>
-            <span class="lib-title">Rule 110</span><span class="lib-sub">S2:E1 &middot; Random Start</span>
+            <span class="lib-art is-poster"><img src="assets/images/demo/poster-northern-quiet.webp" alt="" width="400" height="600" loading="lazy" decoding="async"></span>
+            <span class="lib-title">Northern Quiet</span><span class="lib-sub">2025</span>
           </div>
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="2" data-time="12"></canvas></span>
-            <span class="lib-title">Colour Spectrum</span><span class="lib-sub">S1:E4 &middot; Red to Red</span>
+            <span class="lib-art is-poster"><img src="assets/images/demo/poster-ember-season.webp" alt="" width="400" height="600" loading="lazy" decoding="async"></span>
+            <span class="lib-title">Ember Season</span><span class="lib-sub">2026</span>
           </div>
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="1" data-time="31"></canvas></span>
-            <span class="lib-title">Bars and Tone</span><span class="lib-sub">S1:E1 &middot; Bars</span>
+            <span class="lib-art is-poster"><img src="assets/images/demo/poster-the-last-ferry.webp" alt="" width="400" height="600" loading="lazy" decoding="async"></span>
+            <span class="lib-title">The Last Ferry</span><span class="lib-sub">2024</span>
           </div>
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="0" data-time="205"></canvas></span>
-            <span class="lib-title">Mandelbrot Set</span><span class="lib-sub">Elephant Valley</span>
+            <span class="lib-art is-poster"><img src="assets/images/demo/poster-glass-city.webp" alt="" width="400" height="600" loading="lazy" decoding="async"></span>
+            <span class="lib-title">Glass City</span><span class="lib-sub">2026</span>
+          </div>
+          <div class="lib-card">
+            <span class="lib-art is-poster"><img src="assets/images/demo/poster-far-side.webp" alt="" width="400" height="600" loading="lazy" decoding="async"></span>
+            <span class="lib-title">Far Side</span><span class="lib-sub">2025</span>
+          </div>
+          <div class="lib-card">
+            <span class="lib-art is-poster"><img src="assets/images/demo/poster-driftwood.webp" alt="" width="400" height="600" loading="lazy" decoding="async"></span>
+            <span class="lib-title">Driftwood</span><span class="lib-sub">2023</span>
           </div>
         </div>
       </div>
@@ -547,9 +556,9 @@
     </div>
 
     <!-- The Feed page, from ui/youtube.slint and ui/youtube-card.slint. Every
-         channel and title is invented, and the thumbnails are frames from the
-         test patterns. docs/youtube.md: the plain word and a generic icon, and
-         none of their logos. -->
+         channel, title and thumbnail is invented: the pictures are drawn from
+         noise and gradients, like the library's above. docs/youtube.md: the plain
+         word and a generic icon, and none of their logos. -->
     <figure class="library dark-window" role="img"
             aria-label="An illustration of the YouTube section: a bar with Feed, Search, Watch Later and Channels, and a grid of video cards with durations and progress bars.">
       <div class="lib-bar">
@@ -567,38 +576,38 @@
         </div>
         <div class="lib-cards">
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="0" data-time="70"></canvas><span class="yt-badge">12:04</span><span class="lib-progress"><i style="width:36%"></i></span></span>
-            <span class="lib-title">The Whole Set, Slowly</span><span class="lib-sub">Fractal Walks &middot; 3 hours ago</span>
+            <span class="lib-art"><img src="assets/images/demo/yt-aurora-live.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge yt-live">LIVE</span></span>
+            <span class="lib-title">Northern Lights, Live from the Fjord</span><span class="lib-sub">North by Night</span>
           </div>
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="3" data-time="14"></canvas><span class="yt-badge">8:41</span></span>
-            <span class="lib-title">Three Neighbours</span><span class="lib-sub">Cell Block &middot; 5 hours ago</span>
+            <span class="lib-art"><img src="assets/images/demo/yt-ridge-sunrise.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">12:04</span><span class="lib-progress"><i style="width:36%"></i></span></span>
+            <span class="lib-title">Sunrise on the Ridge, Unhurried</span><span class="lib-sub">Slow Places &middot; 3 hours ago</span>
           </div>
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="4" data-time="30"></canvas><span class="yt-badge yt-live">LIVE</span></span>
-            <span class="lib-title">Slow Colour, All Night</span><span class="lib-sub">Quiet Channel</span>
+            <span class="lib-art"><img src="assets/images/demo/yt-how-dunes-move.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">8:41</span></span>
+            <span class="lib-title">How Dunes Move</span><span class="lib-sub">Field Notes &middot; 5 hours ago</span>
           </div>
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="5" data-time="40"></canvas><span class="yt-badge">21:17</span></span>
-            <span class="lib-title">Each Row From the Last</span><span class="lib-sub">Cell Block &middot; 1 day ago</span>
+            <span class="lib-art"><img src="assets/images/demo/yt-rain-city.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">4:00:12</span></span>
+            <span class="lib-title">Rain on the City, Four Hours</span><span class="lib-sub">Quiet Hours &middot; 1 day ago</span>
           </div>
         </div>
         <div class="lib-cards yt-row">
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="2" data-time="44"></canvas><span class="yt-badge">3:21</span></span>
-            <span class="lib-title">Every Hue, In Order</span><span class="lib-sub">Signal Path &middot; 2 days ago</span>
+            <span class="lib-art"><img src="assets/images/demo/yt-planet-rise.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">14:33</span></span>
+            <span class="lib-title">If You Could Watch a Planet Rise</span><span class="lib-sub">Orbit Club &middot; 2 days ago</span>
           </div>
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="0" data-time="150"></canvas><span class="yt-badge">16:52</span><span class="lib-progress"><i style="width:80%"></i></span></span>
-            <span class="lib-title">Down Seahorse Valley</span><span class="lib-sub">Fractal Walks &middot; 4 days ago</span>
+            <span class="lib-art"><img src="assets/images/demo/yt-old-forest.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">21:17</span><span class="lib-progress"><i style="width:80%"></i></span></span>
+            <span class="lib-title">Fog in the Old Forest</span><span class="lib-sub">Slow Places &middot; 4 days ago</span>
           </div>
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="6" data-time="40"></canvas><span class="yt-badge">3:09</span></span>
-            <span class="lib-title">Please Stand By</span><span class="lib-sub">Signal Path &middot; 1 week ago</span>
+            <span class="lib-art"><img src="assets/images/demo/yt-storm-coast.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">9:52</span></span>
+            <span class="lib-title">Storm Coast</span><span class="lib-sub">Field Notes &middot; 1 week ago</span>
           </div>
           <div class="lib-card">
-            <span class="lib-art"><canvas data-pattern="1" data-time="20"></canvas><span class="yt-badge">2:34</span></span>
-            <span class="lib-title">A Tone, Explained</span><span class="lib-sub">Signal Path &middot; 2 weeks ago</span>
+            <span class="lib-art"><img src="assets/images/demo/yt-buttes-sunset.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">16:52</span></span>
+            <span class="lib-title">Sunset Between the Buttes</span><span class="lib-sub">Slow Places &middot; 2 weeks ago</span>
           </div>
         </div>
       </div>
