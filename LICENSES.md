@@ -24,5 +24,6 @@ Patina and this site are MIT licensed.
 The full text ships beside the fonts at `assets/fonts/OFL.txt`. The files are
 the app's own, converted to WOFF2 and otherwise unchanged.
 
-**Not affiliated** — Jellyfin and OpenSubtitles are named here because Patina
-works with them; neither has anything to do with this site.
+**Not affiliated** — Jellyfin, OpenSubtitles, YouTube and Google are named
+here because Patina works with them; none of them has anything to do with
+this site or with Patina.

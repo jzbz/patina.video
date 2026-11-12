@@ -25,11 +25,11 @@
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Patina — your video, edge to edge. A media player for Linux, macOS and Windows, shown as a window playing a Mandelbrot set with a floating controller over it.">
+<meta property="og:image:alt" content="Patina — your video, edge to edge. A media player for Linux, macOS and Windows, built on mpv, with Jellyfin and YouTube clients, shown as a window playing a Mandelbrot set with a floating controller over it.">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://patina.video/assets/images/og.png">
-<meta name="twitter:image:alt" content="Patina — your video, edge to edge. A media player for Linux, macOS and Windows, shown as a window playing a Mandelbrot set with a floating controller over it.">
+<meta name="twitter:image:alt" content="Patina — your video, edge to edge. A media player for Linux, macOS and Windows, built on mpv, with Jellyfin and YouTube clients, shown as a window playing a Mandelbrot set with a floating controller over it.">
 
 <link rel="preload" href="assets/fonts/ibm-plex-sans-regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/ibm-plex-sans-bold.woff2" as="font" type="font/woff2" crossorigin>
@@ -97,6 +97,17 @@
     <symbol viewBox="0 0 24 24" id="i-chevron-left"><path d="m15 18-6-6 6-6"/></symbol>
     <symbol viewBox="0 0 24 24" id="i-external"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
     <symbol viewBox="0 0 24 24" id="i-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-house"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-circle-x"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-undo-2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-list-music"><path d="M16 5H3"/><path d="M11 12H3"/><path d="M11 19H3"/><path d="M21 16V5"/><circle cx="18" cy="16" r="3"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-ellipsis"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-clock"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-chevron-right"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-chevron-down"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-user-round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+    <symbol viewBox="0 0 24 24" id="i-folder-open"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></symbol>
   </defs>
   <!-- The Gamma slider. CSS has a filter for the other four. -->
   <filter id="gamma" color-interpolation-filters="sRGB">
@@ -158,7 +169,7 @@
     <p class="negations"><span>no webview</span><span>no Electron</span><span>no account</span><span>no telemetry</span></p>
     <div class="hero-actions">
       <a class="btn btn-primary btn-lg" href="#get">
-        <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Download
+        <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Get it
       </a>
       <a class="btn btn-lg" href="https://github.com/jzbz/patina">
         <svg class="ico" aria-hidden="true"><use href="#i-external"/></svg>Read the source
@@ -191,10 +202,40 @@
           <div class="picture" id="picture"><canvas id="video" aria-hidden="true"></canvas></div>
           <div class="subs" id="subs"></div>
 
+          <!-- The welcome screen, which Home comes back to, from
+               ui/welcome.slint. Open, Open URL, YouTube and the
+               server are furniture; Resume and Recent play. -->
+          <div class="welcome" id="welcome" hidden>
+            <div class="wel-column">
+              <img class="wel-icon" src="assets/images/icon.svg" alt="" width="83" height="83">
+              <p class="wel-name">Patina</p>
+              <p class="wel-version">Version 0.1.0</p>
+              <div class="wel-actions">
+                <button class="wel-action" id="welResume" type="button">
+                  <svg class="ico ico-fill" aria-hidden="true"><use href="#i-play"/></svg>
+                  <span><b>Resume Last Playback</b><i id="welResumeTitle">Mandelbrot Set.mkv</i></span>
+                </button>
+                <span class="wel-action"><svg class="ico" aria-hidden="true"><use href="#i-folder-open"/></svg><span><b>Open&hellip;</b><i>Files or a folder</i></span></span>
+                <span class="wel-action"><svg class="ico" aria-hidden="true"><use href="#i-link"/></svg><span><b>Open URL&hellip;</b><i>Streams and online video</i></span></span>
+                <span class="wel-action"><svg class="ico" aria-hidden="true"><use href="#i-list-video"/></svg><span><b>YouTube</b><i>Your channels, search and Watch Later</i></span></span>
+                <span class="wel-action"><svg class="ico" aria-hidden="true"><use href="#i-server"/></svg><span><b>Living room server</b><i>sam</i></span></span>
+                <span class="wel-action"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg><span><b>Add Server&hellip;</b><i>Browse another Jellyfin server</i></span></span>
+              </div>
+            </div>
+            <div class="wel-recent">
+              <div class="wel-recent-head">
+                <span>Recent</span>
+                <span class="ib" title="Clear Recent…"><svg class="ico" aria-hidden="true"><use href="#i-trash-2"/></svg></span>
+              </div>
+              <div class="wel-recent-rows" id="recentRows"></div>
+            </div>
+          </div>
+
           <div class="titlebar fades">
             <span class="ib"><svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg></span>
             <svg class="ico tb-icon" aria-hidden="true"><use href="#i-file-play"/></svg>
             <span class="tb-title" id="tbTitle">Mandelbrot Set.mkv</span>
+            <button class="ib" id="tbHome" type="button" title="Welcome Screen" aria-label="Welcome Screen"><svg class="ico" aria-hidden="true"><use href="#i-house"/></svg></button>
             <button class="ib" id="tbPip" type="button" title="Picture in Picture" aria-label="Picture in Picture"><svg class="ico" aria-hidden="true"><use href="#i-picture-in-picture-2"/></svg></button>
             <span class="ib"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg></span>
             <span class="tb-win" aria-hidden="true">
@@ -211,10 +252,8 @@
           </div>
 
           <div class="osc fades" id="osc">
-            <div class="osc-volume">
-              <button class="ib" id="mute" type="button" title="Mute" aria-label="Mute"><svg class="ico" aria-hidden="true"><use id="muteIcon" href="#i-volume-1"/></svg></button>
-              <input class="slider" id="volume" type="range" min="0" max="100" step="1" value="62" aria-label="Volume">
-            </div>
+            <button class="ib" id="mute" type="button" title="Mute" aria-label="Mute"><svg class="ico" aria-hidden="true"><use id="muteIcon" href="#i-volume-1"/></svg></button>
+            <input class="slider" id="volume" type="range" min="0" max="100" step="1" value="62" aria-label="Volume">
 
             <div class="osc-transport">
               <button class="ib" id="oscLeft" type="button" title="Slow down" aria-label="Slow down"><svg class="ico ico-fill" aria-hidden="true"><use href="#i-rewind"/></svg></button>
@@ -227,6 +266,7 @@
             </div>
 
             <div class="osc-tools">
+              <button class="ib home-tool" id="toolHome" type="button" title="Welcome Screen" aria-label="Welcome Screen"><svg class="ico" aria-hidden="true"><use href="#i-house"/></svg></button>
               <button class="ib pip-tool" id="toolPip" type="button" title="Picture in Picture" aria-label="Picture in Picture"><svg class="ico" aria-hidden="true"><use href="#i-picture-in-picture-2"/></svg></button>
               <button class="ib" id="toolPlaylist" type="button" title="Playlist" aria-label="Playlist" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-list-video"/></svg></button>
               <button class="ib" id="toolSettings" type="button" title="Quick Settings" aria-label="Quick Settings" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-sliders-horizontal"/></svg></button>
@@ -276,6 +316,9 @@
               <div class="side-scroll" id="chapters"></div>
             </div>
 
+            <!-- The panels as ui/sidebar.slint lays them out: capitals over a
+                 section, rules between some, and ValueSlider's label, value
+                 and reset over a full-width slider. -->
             <div class="side-panel" id="panel-video" hidden>
               <div class="side-scroll">
                 <div class="group">
@@ -283,24 +326,51 @@
                   <div class="segmented" id="aspectChoices"></div>
                 </div>
                 <div class="group">
+                  <p class="group-title">CROP</p>
+                  <div class="segmented" id="cropChoices"></div>
+                </div>
+                <div class="group">
                   <p class="group-title">ROTATION</p>
                   <div class="segmented" id="rotationChoices"></div>
                   <label class="line"><span>Flip vertically</span><input class="toggle" id="flip" type="checkbox"></label>
                   <label class="line"><span>Mirror horizontally</span><input class="toggle" id="mirror" type="checkbox"></label>
                 </div>
-                <div class="group">
-                  <p class="group-title">SPEED</p>
-                  <label class="line"><span>Speed</span><input class="slider" id="speedRange" type="range" min="-5" max="5" step="1" value="0"><span class="line-read" id="speedRangeRead"></span></label>
+                <hr class="divider">
+                <div class="group vs">
+                  <div class="vs-head"><label for="speedRange">Speed</label><span class="vs-read" id="speedRangeRead"></span><button class="ib vs-reset" id="speedRangeReset" type="button" title="Reset speed" aria-label="Reset speed"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></button></div>
+                  <span class="vs-track"><input class="slider" id="speedRange" type="range" min="-2" max="4" step="0.05" value="0"></span>
+                  <span class="vs-ticks" aria-hidden="true"><span>0.25×</span><span>1×</span><span>4×</span><span>16×</span></span>
                 </div>
+                <hr class="divider">
+                <div class="group">
+                  <label class="line"><span>Deinterlace</span><input class="toggle" id="deinterlace" type="checkbox"></label>
+                  <label class="line"><span>Hardware decoding</span><input class="toggle" id="hwdec" type="checkbox" checked></label>
+                  <p class="note-line">Decoder: your browser, drawing every frame</p>
+                </div>
+                <hr class="divider">
                 <div class="group">
                   <p class="group-title">COLOR</p>
-                  <label class="line"><span>Brightness</span><input class="slider" id="brightness" type="range" min="-100" max="100" step="1" value="0"><span class="line-read" id="brightnessRead"></span></label>
-                  <label class="line"><span>Contrast</span><input class="slider" id="contrast" type="range" min="-100" max="100" step="1" value="0"><span class="line-read" id="contrastRead"></span></label>
-                  <label class="line"><span>Saturation</span><input class="slider" id="saturation" type="range" min="-100" max="100" step="1" value="0"><span class="line-read" id="saturationRead"></span></label>
-                  <label class="line"><span>Gamma</span><input class="slider" id="gamma-range" type="range" min="-100" max="100" step="1" value="0"><span class="line-read" id="gamma-rangeRead"></span></label>
-                  <label class="line"><span>Hue</span><input class="slider" id="hue" type="range" min="-100" max="100" step="1" value="0"><span class="line-read" id="hueRead"></span></label>
+                  <div class="vs">
+                    <div class="vs-head"><label for="brightness">Brightness</label><span class="vs-read" id="brightnessRead"></span><button class="ib vs-reset" id="brightnessReset" type="button" title="Reset Brightness" aria-label="Reset Brightness"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></button></div>
+                    <span class="vs-track is-centered"><input class="slider" id="brightness" type="range" min="-100" max="100" step="1" value="0"></span>
+                  </div>
+                  <div class="vs">
+                    <div class="vs-head"><label for="contrast">Contrast</label><span class="vs-read" id="contrastRead"></span><button class="ib vs-reset" id="contrastReset" type="button" title="Reset Contrast" aria-label="Reset Contrast"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></button></div>
+                    <span class="vs-track is-centered"><input class="slider" id="contrast" type="range" min="-100" max="100" step="1" value="0"></span>
+                  </div>
+                  <div class="vs">
+                    <div class="vs-head"><label for="saturation">Saturation</label><span class="vs-read" id="saturationRead"></span><button class="ib vs-reset" id="saturationReset" type="button" title="Reset Saturation" aria-label="Reset Saturation"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></button></div>
+                    <span class="vs-track is-centered"><input class="slider" id="saturation" type="range" min="-100" max="100" step="1" value="0"></span>
+                  </div>
+                  <div class="vs">
+                    <div class="vs-head"><label for="gamma-range">Gamma</label><span class="vs-read" id="gamma-rangeRead"></span><button class="ib vs-reset" id="gamma-rangeReset" type="button" title="Reset Gamma" aria-label="Reset Gamma"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></button></div>
+                    <span class="vs-track is-centered"><input class="slider" id="gamma-range" type="range" min="-100" max="100" step="1" value="0"></span>
+                  </div>
+                  <div class="vs">
+                    <div class="vs-head"><label for="hue">Hue</label><span class="vs-read" id="hueRead"></span><button class="ib vs-reset" id="hueReset" type="button" title="Reset Hue" aria-label="Reset Hue"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></button></div>
+                    <span class="vs-track is-centered"><input class="slider" id="hue" type="range" min="-100" max="100" step="1" value="0"></span>
+                  </div>
                 </div>
-                <p class="note-line">Decoder: your browser, drawing every frame</p>
               </div>
             </div>
 
@@ -308,42 +378,70 @@
               <div class="side-scroll">
                 <div class="group">
                   <p class="group-title">AUDIO TRACK</p>
-                  <button class="track-row" type="button" aria-pressed="true"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>None. This page is silent.</button>
+                  <div class="choice is-on"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg><span>None. This page is silent.</span></div>
+                  <span class="side-btn is-off" aria-hidden="true">Load External Audio&hellip;</span>
                 </div>
-                <div class="group">
-                  <label class="line"><span>Audio delay</span><input class="slider" id="audioDelay" type="range" min="-10" max="10" step="0.1" value="0"><span class="line-read" id="audioDelayRead"></span></label>
+                <hr class="divider">
+                <div class="vs">
+                  <div class="vs-head"><label for="audioDelay">Audio delay</label><span class="vs-read" id="audioDelayRead"></span><button class="ib vs-reset" id="audioDelayReset" type="button" title="Reset Audio delay" aria-label="Reset Audio delay"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></button></div>
+                  <span class="vs-track is-centered"><input class="slider" id="audioDelay" type="range" min="-5" max="5" step="0.05" value="0"></span>
                 </div>
+                <hr class="divider">
                 <div class="group">
                   <p class="group-title">EQUALIZER</p>
                   <div class="eq" id="eq"></div>
                   <div class="side-foot"><button class="side-btn" id="eqReset" type="button">Reset</button></div>
+                </div>
+                <div class="group">
+                  <p class="group-title">OUTPUT DEVICE</p>
+                  <div class="choice is-on"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg><span>Autoselect device</span></div>
                 </div>
               </div>
             </div>
 
             <div class="side-panel" id="panel-subtitles" hidden>
               <div class="side-scroll">
-                <div class="group">
-                  <p class="group-title">SUBTITLE TRACK</p>
-                  <button class="track-row" id="trackNone" type="button" aria-pressed="true"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>None</button>
-                  <button class="track-row" id="trackEnglish" type="button" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg>1 English</button>
+                <div class="segmented" id="subWhich"></div>
+                <div class="group" id="subPrimary">
+                  <button class="choice" id="trackNone" type="button" aria-pressed="true"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg><span>None</span></button>
+                  <button class="choice" id="trackEnglish" type="button" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg><span>1 English</span></button>
                 </div>
-                <div class="group">
-                  <label class="line"><span>Show subtitles</span><input class="toggle" id="subsShow" type="checkbox"></label>
-                  <label class="line"><span>Delay</span><input class="slider" id="subDelay" type="range" min="-10" max="10" step="0.1" value="0"><span class="line-read" id="subDelayRead"></span></label>
-                  <label class="line"><span>Scale</span><input class="slider" id="subScale" type="range" min="0.25" max="3" step="0.05" value="1"><span class="line-read" id="subScaleRead"></span></label>
-                  <label class="line"><span>Position</span><input class="slider" id="subPosition" type="range" min="0" max="150" step="1" value="100"><span class="line-read" id="subPositionRead"></span></label>
+                <div class="group" id="subSecondary" hidden>
+                  <div class="choice is-on"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg><span>None</span></div>
+                </div>
+                <div class="group"><span class="side-btn is-off" aria-hidden="true">Load External&hellip;</span></div>
+                <hr class="divider">
+                <div class="group loose">
+                  <label class="line only-primary"><span>Show subtitles</span><input class="toggle" id="subsShow" type="checkbox" checked></label>
+                  <label class="line only-secondary" hidden><span>Show secondary subtitles</span><input class="toggle" id="secShow" type="checkbox" checked></label>
+                  <div class="vs only-primary">
+                    <div class="vs-head"><label for="subDelay">Delay</label><span class="vs-read" id="subDelayRead"></span><button class="ib vs-reset" id="subDelayReset" type="button" title="Reset Delay" aria-label="Reset Delay"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></button></div>
+                    <span class="vs-track is-centered"><input class="slider" id="subDelay" type="range" min="-10" max="10" step="0.05" value="0"></span>
+                  </div>
+                  <div class="vs only-secondary" hidden>
+                    <div class="vs-head"><label for="secDelay">Delay</label><span class="vs-read" id="secDelayRead"></span><button class="ib vs-reset" id="secDelayReset" type="button" title="Reset Delay" aria-label="Reset Delay"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></button></div>
+                    <span class="vs-track is-centered"><input class="slider" id="secDelay" type="range" min="-10" max="10" step="0.05" value="0"></span>
+                  </div>
+                  <div class="vs only-primary">
+                    <div class="vs-head"><label for="subScale">Scale</label><span class="vs-read" id="subScaleRead"></span><button class="ib vs-reset" id="subScaleReset" type="button" title="Reset Scale" aria-label="Reset Scale"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></button></div>
+                    <span class="vs-track"><input class="slider" id="subScale" type="range" min="0.25" max="3" step="0.05" value="1"></span>
+                  </div>
+                  <div class="vs only-primary">
+                    <div class="vs-head"><label for="subPosition">Position</label><span class="vs-read" id="subPositionRead"></span><button class="ib vs-reset" id="subPositionReset" type="button" title="Reset Position" aria-label="Reset Position"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></button></div>
+                    <span class="vs-track"><input class="slider" id="subPosition" type="range" min="0" max="150" step="1" value="100"></span>
+                  </div>
                 </div>
               </div>
             </div>
           </aside>
 
           <div class="pip-controls">
-            <button class="ib" id="pipPlay" type="button" aria-label="Pause">
+            <button class="ib" id="pipPlay" type="button" title="Pause" aria-label="Pause">
               <svg class="ico ico-fill ico-pause" aria-hidden="true"><use href="#i-pause"/></svg>
               <svg class="ico ico-fill ico-play" aria-hidden="true"><use href="#i-play"/></svg>
             </button>
-            <button class="ib pip-back" id="pipBack" type="button" aria-label="Put the video back"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+            <button class="ib pip-back" id="pipBack" type="button" title="Exit Picture in Picture" aria-label="Exit Picture in Picture"><svg class="ico" aria-hidden="true"><use href="#i-picture-in-picture-2"/></svg></button>
+            <span class="pip-progress" aria-hidden="true"><i id="pipFill"></i></span>
           </div>
         </div>
       </div>
@@ -352,8 +450,10 @@
         That is not a screenshot, and it isn't a recording either. It is the
         window rebuilt from the app's own sizes and words, playing its test
         patterns as your browser draws them. Hover the seek bar, open the
-        playlist, or click the picture and press <kbd>Space</kbd>, <kbd>&larr;</kbd>
-        <kbd>&rarr;</kbd> or <kbd>f</kbd>.
+        playlist, click the picture to pause or double-click it for full
+        screen, or press <kbd>Space</kbd>, <kbd>&larr;</kbd> <kbd>&rarr;</kbd>
+        or <kbd>f</kbd>. Home, the house in the title bar, goes back to the
+        welcome screen.
       </figcaption>
     </figure>
   </div>
@@ -383,6 +483,18 @@
           which comes to the front. Media keys and the desktop's own player
           controls work: MPRIS on Linux, the media panel on Windows, and Now
           Playing on macOS, though that has yet to be tried there.
+        </p>
+        <p>
+          A new window opens at 1280&times;720 on the welcome screen: Open, Open
+          URL, YouTube, your Jellyfin servers, Recent and Resume Last Playback.
+          Home goes back there from whatever plays, at the welcome screen's own
+          size; it is in the title bar, on the controller in full screen, and
+          among music mode's buttons. When something from the library or the
+          YouTube section ends, the window goes back there, at that view's
+          size; a file ends on its last frame, or on the welcome screen with
+          &ldquo;Keep the window open after playback finishes&rdquo; turned off.
+          A click on the video pauses or resumes at once, and a double click
+          goes full screen.
         </p>
       </article>
     </div>
@@ -438,10 +550,13 @@
     </figure>
 
     <p class="note">
-      And when the folder has nothing, Patina can search OpenSubtitles.com by
-      the file's hash and name, in your languages, with your own API key and, if
-      you like, your account. The password stays in your system's password
-      store.
+      And when the folder has nothing, Find Online Subtitles searches
+      OpenSubtitles.com by the file's hash and name (a stream or a Jellyfin item
+      by its title), in your languages, with your own API key and, if you like,
+      your account. Patina can also search by itself when a local video of 20
+      minutes or more opens with no subtitles, and then takes only an exact
+      match; that is off by default. The password stays in your system's
+      password store.
     </p>
   </div>
 </section>
@@ -459,40 +574,58 @@
       </p>
     </div>
 
-    <!-- The Home page's strips, from ui/library.slint: landscape cards at 288px
-         and posters at 180px in the app. Every title is invented, and so is every
-         picture: assets/images/demo holds stills drawn from noise and gradients,
-         so none of it is anyone's film. -->
+    <!-- Home, from ui/library.slint and ui/library-parts.slint, under the
+         title bar: cards at the app's 288px and 180px, 16px apart, in rows
+         that run on past the window's edge as the app's do. Every title is
+         invented, and so is every picture: assets/images/demo holds stills
+         drawn from noise and gradients, so none of it is anyone's film. -->
     <figure class="library dark-window" role="img"
-            aria-label="An illustration of the library: a bar with Home, Movies, Shows and Music, a Continue Watching strip of film stills with progress bars, and a row of film posters under Latest Movies.">
+            aria-label="An illustration of the library: under the title bar, a bar with Home, Movies, Shows, Music and Search and the signed-in account, a Continue Watching row of film stills with progress bars, and a row of film posters under Latest in Movies.">
+      <div class="titlebar is-static">
+        <span class="ib"><svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg></span>
+        <span class="tb-title">Patina</span>
+        <span class="ib"><svg class="ico" aria-hidden="true"><use href="#i-house"/></svg></span>
+        <span class="ib is-disabled"><svg class="ico" aria-hidden="true"><use href="#i-picture-in-picture-2"/></svg></span>
+        <span class="ib"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg></span>
+        <span class="tb-win">
+          <span><svg class="ico" aria-hidden="true"><use href="#i-minus"/></svg></span>
+          <span><svg class="ico" aria-hidden="true"><use href="#i-square"/></svg></span>
+          <span><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></span>
+        </span>
+      </div>
       <div class="lib-bar">
+        <span class="ib lib-back"><svg class="ico" aria-hidden="true"><use href="#i-chevron-left"/></svg></span>
         <div class="lib-nav">
-          <span class="is-on">Home</span><span>Movies</span><span>Shows</span><span>Music</span>
+          <span class="is-on">Home</span><span>Movies</span><span>Shows</span><span>Music</span><span class="lib-search">Search</span>
         </div>
-        <span class="lib-server"><svg class="ico" aria-hidden="true"><use href="#i-server"/></svg>Living room server</span>
+        <span class="lib-account">
+          <span class="lib-avatar"><svg class="ico" aria-hidden="true"><use href="#i-user-round"/></svg></span>
+          <span class="lib-who"><b>sam</b><i>Living room server</i></span>
+          <svg class="ico lib-down" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+        </span>
       </div>
       <div class="lib-body">
-        <p class="lib-strip-title">Continue Watching</p>
-        <div class="lib-cards">
+        <div class="lib-head"><p class="lib-strip-title">Continue Watching</p><span class="ib is-disabled"><svg class="ico" aria-hidden="true"><use href="#i-chevron-left"/></svg></span><span class="ib"><svg class="ico" aria-hidden="true"><use href="#i-chevron-right"/></svg></span></div>
+        <div class="lib-row">
           <div class="lib-card">
             <span class="lib-art"><img src="assets/images/demo/jf-long-tide.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="lib-progress"><i style="width:34%"></i></span></span>
-            <span class="lib-title">The Long Tide</span><span class="lib-sub">S1:E3 &middot; The Stacks</span>
+            <span class="lib-title">The Long Tide</span><span class="lib-sub">S1 E3 &middot; The Stacks</span>
           </div>
           <div class="lib-card">
             <span class="lib-art"><img src="assets/images/demo/jf-northern-quiet.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="lib-progress"><i style="width:62%"></i></span></span>
-            <span class="lib-title">Northern Quiet</span><span class="lib-sub">38 min left</span>
+            <span class="lib-title">Northern Quiet</span><span class="lib-sub">2025</span>
           </div>
           <div class="lib-card">
             <span class="lib-art"><img src="assets/images/demo/jf-salt-flats.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="lib-progress"><i style="width:15%"></i></span></span>
-            <span class="lib-title">Salt and Sand</span><span class="lib-sub">S2:E1 &middot; The Crossing</span>
+            <span class="lib-title">Salt and Sand</span><span class="lib-sub">S2 E1 &middot; The Crossing</span>
           </div>
           <div class="lib-card">
             <span class="lib-art"><img src="assets/images/demo/jf-low-cloud.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="lib-progress"><i style="width:80%"></i></span></span>
-            <span class="lib-title">Low Cloud</span><span class="lib-sub">S1:E5 &middot; Into the Pines</span>
+            <span class="lib-title">Low Cloud</span><span class="lib-sub">S1 E5 &middot; Into the Pines</span>
           </div>
         </div>
-        <p class="lib-strip-title">Latest Movies</p>
-        <div class="lib-posters">
+        <div class="lib-head"><p class="lib-strip-title">Latest in Movies</p><span class="ib is-disabled"><svg class="ico" aria-hidden="true"><use href="#i-chevron-left"/></svg></span><span class="ib"><svg class="ico" aria-hidden="true"><use href="#i-chevron-right"/></svg></span></div>
+        <div class="lib-row is-posters">
           <div class="lib-card">
             <span class="lib-art is-poster"><img src="assets/images/demo/poster-northern-quiet.webp" alt="" width="400" height="600" loading="lazy" decoding="async"></span>
             <span class="lib-title">Northern Quiet</span><span class="lib-sub">2025</span>
@@ -525,17 +658,18 @@
       <article>
         <h3 class="h2-ish">Played straight from the server.</h3>
         <ul class="bullets">
-          <li>Whatever mpv can open plays as it is. The server converts it only when you ask for a lower quality, or when the file can't be played directly.</li>
-          <li>The next episode is lined up, and intros and credits are skipped where the server marks them.</li>
+          <li>Whatever mpv can open plays as it is. The server converts it only when you ask for a lower quality in the Video Quality menu, or when the file can't be played directly. Versions of a film are there to choose from.</li>
+          <li>The next episode is lined up. Intros, credits, recaps and previews that the server marks get a Skip button, or are skipped without asking if you choose.</li>
           <li>The server's own previews show in the seek bar, and its files can be downloaded.</li>
+          <li>Search, collections and More Like This, and marking played or favourite. The title bar's Home goes back to the welcome screen from any page, and when playback ends the window goes back to the library, at the library's own size.</li>
         </ul>
       </article>
       <article>
         <h3 class="h2-ish">Your place stays on the server.</h3>
         <ul class="bullets">
           <li>Where you stopped and what you've watched are kept there, so your other Jellyfin apps agree.</li>
-          <li>Music plays through music mode, with the playlist as the queue and the lyrics in the sidebar.</li>
-          <li>Several servers, by address or found on your network, signed in with a password or Quick Connect. The sign-ins stay in your system's password store.</li>
+          <li>Music plays through music mode, with the playlist as the queue and a song's lyrics in a Lyrics tab beside it.</li>
+          <li>Jellyfin 10.10.7 or newer. Several servers, by address or found on your network, signed in with a password or Quick Connect. The sign-ins stay in your system's password store.</li>
         </ul>
       </article>
     </div>
@@ -549,65 +683,92 @@
       <p class="section-label">BUILT-IN YOUTUBE CLIENT</p>
       <h2>YouTube in the player window, with no account.</h2>
       <p class="deck">
-        A feed of the channels you follow, search, a Watch Later list and
-        downloads, opened from the welcome screen. Patina never signs in to
+        A feed of the channels you follow, search, a Watch Later list, the
+        videos you've played, and downloads, opened from the welcome screen. Patina never signs in to
         Google, and what you pick plays in mpv like anything else.
       </p>
     </div>
 
-    <!-- The Feed page, from ui/youtube.slint and ui/youtube-card.slint. Every
+    <!-- The Feed page, from ui/youtube.slint and ui/youtube-card.slint, under
+         the title bar: as many columns as fit cards of about 288px. Every
          channel, title and thumbnail is invented: the pictures are drawn from
-         noise and gradients, like the library's above. docs/youtube.md: the plain
-         word and a generic icon, and none of their logos. -->
+         noise and gradients, like the library's above. docs/youtube.md: the
+         plain word and a generic icon, and none of their logos. -->
     <figure class="library dark-window" role="img"
-            aria-label="An illustration of the YouTube section: a bar with Feed, Search, Watch Later and Channels, and a grid of video cards with durations and progress bars.">
+            aria-label="An illustration of the YouTube section: under the title bar, a bar with Feed, Search, Watch Later, Channels and History, and a grid of video cards with durations, progress bars, channels, ages and view counts.">
+      <div class="titlebar is-static">
+        <span class="ib"><svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg></span>
+        <span class="tb-title">Patina</span>
+        <span class="ib"><svg class="ico" aria-hidden="true"><use href="#i-house"/></svg></span>
+        <span class="ib is-disabled"><svg class="ico" aria-hidden="true"><use href="#i-picture-in-picture-2"/></svg></span>
+        <span class="ib"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg></span>
+        <span class="tb-win">
+          <span><svg class="ico" aria-hidden="true"><use href="#i-minus"/></svg></span>
+          <span><svg class="ico" aria-hidden="true"><use href="#i-square"/></svg></span>
+          <span><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></span>
+        </span>
+      </div>
       <div class="lib-bar">
-        <svg class="ico yt-back" aria-hidden="true"><use href="#i-chevron-left"/></svg>
+        <span class="ib lib-back"><svg class="ico" aria-hidden="true"><use href="#i-chevron-left"/></svg></span>
         <span class="yt-word">YouTube</span>
         <div class="lib-nav">
-          <span class="is-on">Feed</span><span>Search</span><span>Watch Later</span><span>Channels</span>
+          <span class="is-on">Feed</span><span>Search</span><span>Watch Later</span><span>Channels</span><span>History</span>
         </div>
       </div>
       <div class="lib-body">
         <div class="yt-status">
-          <span>Updated 4 minutes ago</span>
-          <span class="yt-shorts">Shorts</span>
-          <svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>
+          <span>Checked 4 minutes ago</span>
+          <span class="yt-chip">Shorts</span>
+          <span class="ib"><svg class="ico" aria-hidden="true"><use href="#i-rotate-ccw"/></svg></span>
         </div>
-        <div class="lib-cards">
-          <div class="lib-card">
-            <span class="lib-art"><img src="assets/images/demo/yt-aurora-live.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge yt-live">LIVE</span></span>
-            <span class="lib-title">Northern Lights, Live from the Fjord</span><span class="lib-sub">North by Night</span>
+        <div class="yt-grid">
+          <div class="yt-card">
+            <span class="lib-art"><img src="assets/images/demo/yt-aurora-live.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-pill yt-live">LIVE</span></span>
+            <span class="yt-title">Northern Lights, Live from the Fjord</span>
+            <span class="yt-channel">North by Night</span><span class="yt-facts">Live now &middot; 1.2K views</span>
+            <span class="ib yt-more"><svg class="ico" aria-hidden="true"><use href="#i-ellipsis"/></svg></span>
           </div>
-          <div class="lib-card">
-            <span class="lib-art"><img src="assets/images/demo/yt-ridge-sunrise.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">12:04</span><span class="lib-progress"><i style="width:36%"></i></span></span>
-            <span class="lib-title">Sunrise on the Ridge, Unhurried</span><span class="lib-sub">Slow Places &middot; 3 hours ago</span>
+          <div class="yt-card">
+            <span class="lib-art"><img src="assets/images/demo/yt-ridge-sunrise.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-saved"><svg class="ico" aria-hidden="true"><use href="#i-clock"/></svg></span><span class="yt-pill yt-length">12:04</span><span class="lib-progress"><i style="width:36%"></i></span></span>
+            <span class="yt-title">Sunrise on the Ridge, Unhurried</span>
+            <span class="yt-channel">Slow Places</span><span class="yt-facts">3 hours ago &middot; 12K views</span>
+            <span class="ib yt-more"><svg class="ico" aria-hidden="true"><use href="#i-ellipsis"/></svg></span>
           </div>
-          <div class="lib-card">
-            <span class="lib-art"><img src="assets/images/demo/yt-how-dunes-move.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">8:41</span></span>
-            <span class="lib-title">How Dunes Move</span><span class="lib-sub">Field Notes &middot; 5 hours ago</span>
+          <div class="yt-card">
+            <span class="lib-art"><img src="assets/images/demo/yt-how-dunes-move.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-pill yt-length">8:41</span></span>
+            <span class="yt-title">How Dunes Move</span>
+            <span class="yt-channel">Field Notes</span><span class="yt-facts">5 hours ago &middot; 48K views</span>
+            <span class="ib yt-more"><svg class="ico" aria-hidden="true"><use href="#i-ellipsis"/></svg></span>
           </div>
-          <div class="lib-card">
-            <span class="lib-art"><img src="assets/images/demo/yt-rain-city.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">4:00:12</span></span>
-            <span class="lib-title">Rain on the City, Four Hours</span><span class="lib-sub">Quiet Hours &middot; 1 day ago</span>
+          <div class="yt-card">
+            <span class="lib-art"><img src="assets/images/demo/yt-rain-city.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-pill yt-length">4:00:12</span></span>
+            <span class="yt-title">Rain on the City, Four Hours</span>
+            <span class="yt-channel">Quiet Hours</span><span class="yt-facts">1 day ago &middot; 310K views</span>
+            <span class="ib yt-more"><svg class="ico" aria-hidden="true"><use href="#i-ellipsis"/></svg></span>
           </div>
-        </div>
-        <div class="lib-cards yt-row">
-          <div class="lib-card">
-            <span class="lib-art"><img src="assets/images/demo/yt-planet-rise.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">14:33</span></span>
-            <span class="lib-title">If You Could Watch a Planet Rise</span><span class="lib-sub">Orbit Club &middot; 2 days ago</span>
+          <div class="yt-card">
+            <span class="lib-art"><img src="assets/images/demo/yt-planet-rise.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-pill yt-length">14:33</span></span>
+            <span class="yt-title">If You Could Watch a Planet Rise</span>
+            <span class="yt-channel">Orbit Club</span><span class="yt-facts">2 days ago &middot; 1.1M views</span>
+            <span class="ib yt-more"><svg class="ico" aria-hidden="true"><use href="#i-ellipsis"/></svg></span>
           </div>
-          <div class="lib-card">
-            <span class="lib-art"><img src="assets/images/demo/yt-old-forest.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">21:17</span><span class="lib-progress"><i style="width:80%"></i></span></span>
-            <span class="lib-title">Fog in the Old Forest</span><span class="lib-sub">Slow Places &middot; 4 days ago</span>
+          <div class="yt-card">
+            <span class="lib-art"><img src="assets/images/demo/yt-old-forest.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-saved"><svg class="ico" aria-hidden="true"><use href="#i-clock"/></svg></span><span class="yt-pill yt-length">21:17</span><span class="lib-progress"><i style="width:80%"></i></span></span>
+            <span class="yt-title">Fog in the Old Forest</span>
+            <span class="yt-channel">Slow Places</span><span class="yt-facts">4 days ago &middot; 9.4K views</span>
+            <span class="ib yt-more"><svg class="ico" aria-hidden="true"><use href="#i-ellipsis"/></svg></span>
           </div>
-          <div class="lib-card">
-            <span class="lib-art"><img src="assets/images/demo/yt-storm-coast.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">9:52</span></span>
-            <span class="lib-title">Storm Coast</span><span class="lib-sub">Field Notes &middot; 1 week ago</span>
+          <div class="yt-card">
+            <span class="lib-art"><img src="assets/images/demo/yt-storm-coast.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-pill yt-length">9:52</span></span>
+            <span class="yt-title">Storm Coast</span>
+            <span class="yt-channel">Field Notes</span><span class="yt-facts">7 days ago &middot; 76K views</span>
+            <span class="ib yt-more"><svg class="ico" aria-hidden="true"><use href="#i-ellipsis"/></svg></span>
           </div>
-          <div class="lib-card">
-            <span class="lib-art"><img src="assets/images/demo/yt-buttes-sunset.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-badge">16:52</span></span>
-            <span class="lib-title">Sunset Between the Buttes</span><span class="lib-sub">Slow Places &middot; 2 weeks ago</span>
+          <div class="yt-card">
+            <span class="lib-art"><img src="assets/images/demo/yt-buttes-sunset.webp" alt="" width="640" height="360" loading="lazy" decoding="async"><span class="yt-pill yt-length">16:52</span></span>
+            <span class="yt-title">Sunset Between the Buttes</span>
+            <span class="yt-channel">Slow Places</span><span class="yt-facts">14 days ago &middot; 22K views</span>
+            <span class="ib yt-more"><svg class="ico" aria-hidden="true"><use href="#i-ellipsis"/></svg></span>
           </div>
         </div>
       </div>
@@ -617,17 +778,17 @@
       <article>
         <h3 class="h2-ish">The lists are yours.</h3>
         <ul class="bullets">
-          <li>Follow a channel by its link or <code>@handle</code>, from search, or by importing your subscriptions from Google's data export. You can export them the same way.</li>
+          <li>Follow a channel by its link or <code>@handle</code>, or from search. Channels and Watch Later import from and export to the files of Google's data export, and channels go to and from NewPipe's subscriptions file too.</li>
           <li>Watch Later and your channels are kept by Patina and don't appear on YouTube. Your place in a video and what you've watched stay on your computer.</li>
-          <li>Videos play up to your screen's resolution by default, and go back to the feed when they end.</li>
+          <li>Videos play up to your screen's resolution by default. When one ends, or on Escape or Stop, the window goes back to the page it was played from, at the same place: the feed, search, Watch Later, a channel or History.</li>
         </ul>
       </article>
       <article>
         <h3 class="h2-ish">No account isn't no trace.</h3>
         <ul class="bullets">
-          <li>Nothing goes until you open it. Opening it asks YouTube about the channels you follow, so Google can see your address and those channels, along with what you search for and play.</li>
+          <li>Nothing goes until you open it. Opening it, if the last check is over 30 minutes old, asks YouTube about each channel you follow, and fetches thumbnails and any missing titles. So Google can see your address and those channels, along with what you search for and play.</li>
           <li>The HTTP proxy preference covers all of it, and nothing goes direct if the proxy can't be used. Nothing goes to the developer. <a href="privacy/#youtube">The privacy page</a> has the details.</li>
-          <li>YouTube's terms bar downloading and automated access, which this does through yt-dlp. Using it is your choice, and nothing else in Patina depends on it.</li>
+          <li>YouTube's terms bar downloading and automated access, which this does through yt-dlp and in reading channel feeds. Using it is your choice, and nothing else in Patina depends on it.</li>
         </ul>
       </article>
     </div>
@@ -639,10 +800,11 @@
   <div class="wrap">
     <div class="music-layout">
       <!-- ui/music.slint: the cover, the 72px strip whose title gives way to the
-           transport while the pointer is over it, and the playlist as a drawer.
-           Hover it. The album is the one in the app's own screenshot. -->
+           controls while the pointer is over it, close, back and home over the
+           cover with them, and the playlist as a drawer. Hover it. The album is
+           the one in the app's own screenshot. -->
       <figure class="music dark-window" role="img"
-              aria-label="Music mode: an album cover of a pale sun over a green horizon, the song Overtones by Northern Oscillator with a seek bar, and the playlist below it.">
+              aria-label="Music mode: an album cover of a pale sun over a green horizon, the song Overtones by Northern Oscillator with a seek bar, and the playlist below it. Over the cover, buttons to close, leave music mode and go to the welcome screen.">
         <svg class="music-cover" viewBox="0 0 300 300" aria-hidden="true">
           <defs>
             <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1">
@@ -662,24 +824,40 @@
             <rect x="60" y="216" width="180" height="4"/>
           </g>
         </svg>
+        <span class="music-buttons" aria-hidden="true">
+          <svg class="ico"><use href="#i-circle-x"/></svg>
+          <svg class="ico"><use href="#i-undo-2"/></svg>
+          <svg class="ico"><use href="#i-house"/></svg>
+        </span>
         <div class="music-strip">
           <span class="music-id">
             <span class="music-title">Overtones</span>
             <span class="music-sub">Northern Oscillator - Pure Tones</span>
           </span>
-          <span class="music-transport" aria-hidden="true">
-            <svg class="ico ico-fill"><use href="#i-skip-back"/></svg>
-            <svg class="ico ico-fill ico-big"><use href="#i-pause"/></svg>
-            <svg class="ico ico-fill"><use href="#i-skip-forward"/></svg>
+          <span class="music-controls" aria-hidden="true">
+            <svg class="ico mc-volume"><use href="#i-volume-1"/></svg>
+            <svg class="ico ico-fill mc-prev"><use href="#i-skip-back"/></svg>
+            <svg class="ico ico-fill mc-play"><use href="#i-pause"/></svg>
+            <svg class="ico ico-fill mc-next"><use href="#i-skip-forward"/></svg>
+            <svg class="ico mc-list is-active"><use href="#i-list-music"/></svg>
+            <svg class="ico mc-art is-active"><use href="#i-image"/></svg>
           </span>
-          <span class="music-seek"><span>00:41</span><span class="music-bar"><i></i><b></b></span><span>03:18</span></span>
+          <span class="music-time">00:41</span>
+          <span class="music-bar"><i></i><b></b></span>
+          <span class="music-time is-end">03:18</span>
         </div>
         <div class="music-drawer">
           <div class="music-tabs"><span class="is-on">Playlist</span><span>Chapters</span></div>
-          <p class="music-count">7 items &middot; 27:44</p>
+          <div class="music-count">
+            <span>7 items &middot; 27:44</span>
+            <svg class="ico" aria-hidden="true"><use href="#i-repeat-1"/></svg>
+            <svg class="ico" aria-hidden="true"><use href="#i-repeat"/></svg>
+            <svg class="ico" aria-hidden="true"><use href="#i-shuffle"/></svg>
+          </div>
           <div class="music-row"><span class="row-n">1</span><span class="row-id"><span class="row-title">Morning Signal</span><span class="row-sub">Northern Oscillator</span></span><span class="row-time">03:34</span></div>
           <div class="music-row"><span class="row-n">2</span><span class="row-id"><span class="row-title">Low Tide</span><span class="row-sub">Northern Oscillator</span></span><span class="row-time">04:11</span></div>
           <div class="music-row is-current"><span class="row-n"><svg class="ico ico-fill" aria-hidden="true"><use href="#i-play"/></svg></span><span class="row-id"><span class="row-title">Overtones</span><span class="row-sub">Northern Oscillator</span></span><span class="row-time">03:18</span></div>
+          <div class="music-foot"><span class="side-btn">Add Files&hellip;</span><span class="side-btn">URL&hellip;</span><span class="side-btn">Clear</span></div>
         </div>
       </figure>
 
@@ -688,9 +866,12 @@
         <h2>It shrinks for an album.</h2>
         <p class="deck">
           A mini player: the cover with the title and artist, compact
-          controls, and the playlist as a drawer below. It comes on for audio
-          files and goes for video, and an album in a single file is split by
-          its chapters.
+          controls, and the playlist as a drawer below. Its three buttons close
+          the window, go back to the full window, or go home to the welcome
+          screen. It comes on for audio files and goes for video, and audio
+          played outside it has a button on the controller to come back. An
+          album in a single file is split by its chapters, and a song from
+          Jellyfin shows its lyrics in a Lyrics tab.
         </p>
       </div>
     </div>
@@ -719,7 +900,7 @@
       <article>
         <p class="section-label">FROM A TERMINAL</p>
         <h2 class="h2-ish">Or hand it over from a terminal.</h2>
-        <p>While Patina is running, the inputs open in it and the command returns at once.</p>
+        <p>While Patina is running, the inputs open in it and the command returns at once, unless you ask for a new instance.</p>
 <pre class="usage"><b>patina</b> [OPTIONS] [FILE | URL | -] ...
 
   <b>-e, --enqueue</b>           <i>Add to the newest window's playlist</i>
@@ -727,7 +908,9 @@
   <b>-f, --fullscreen</b>        <i>Play in full screen</i>
       <b>--pip</b>               <i>Play in picture-in-picture</i>
       <b>--music-mode</b>        <i>Play in music mode</i>
-      <b>--mpv-NAME=VALUE</b>    <i>Set an mpv option</i></pre>
+      <b>--mpv-NAME=VALUE</b>    <i>Set an mpv option</i>
+      <b>--new-instance</b>      <i>Start another Patina instead</i>
+  <b>-v, --verbose</b>           <i>Log mpv's and Patina's diagnostics</i></pre>
       </article>
     </div>
   </div>
@@ -741,7 +924,7 @@
         <p class="section-label">KEYS</p>
         <h2 class="h2-ish">Every key can be yours.</h2>
         <p class="note">
-          Ctrl stands in for Command outside macOS. Bindings are in mpv's
+          On macOS, Command takes the place of Ctrl. Bindings are in mpv's
           <code>input.conf</code> format, and you can edit them in the preferences
           with a key recorder.
         </p>
@@ -761,12 +944,19 @@
       <div><dt>Previous / next frame</dt><dd><kbd>Alt</kbd> <kbd>&larr;</kbd> &nbsp;<kbd>Alt</kbd> <kbd>&rarr;</kbd></dd></div>
       <div><dt>Subtitle delay</dt><dd><kbd>Shift</kbd> <kbd>Z</kbd> &nbsp;<kbd>Shift</kbd> <kbd>X</kbd></dd></div>
       <div><dt>Volume</dt><dd><kbd>&uarr;</kbd> <kbd>&darr;</kbd></dd></div>
-      <div><dt>Playlist / chapters</dt><dd><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>P</kbd> &nbsp;<kbd>C</kbd></dd></div>
+      <div><dt>Playlist / chapters</dt><dd><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>P</kbd> &nbsp;<kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>C</kbd></dd></div>
       <div><dt>Previous / next file</dt><dd><kbd>Ctrl</kbd> <kbd>&larr;</kbd> &nbsp;<kbd>Ctrl</kbd> <kbd>&rarr;</kbd></dd></div>
       <div><dt>Music mode</dt><dd><kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>M</kbd></dd></div>
       <div><dt>Full screen</dt><dd><kbd>f</kbd></dd></div>
       <div><dt>Jump to a time</dt><dd><kbd>Ctrl</kbd> <kbd>J</kbd></dd></div>
     </dl>
+
+    <p class="note keys-mouse">
+      With the mouse, a click pauses or resumes, a double click toggles full
+      screen, and a right click opens the menu (on macOS it pauses instead). The
+      wheel changes the volume and a horizontal scroll seeks. Drag the video to
+      move the window, and drag the controller to move it.
+    </p>
   </div>
 </section>
 
@@ -776,13 +966,14 @@
     <p class="section-label">GET IT</p>
     <h2>Download.</h2>
     <p class="deck">
-      Self-contained packages for all three desktops, with mpv inside. Signed
-      checksums for everything.
+      There is no release yet. From the first one on, each carries
+      self-contained packages for all three desktops, with mpv inside, and
+      signed checksums for everything. The commands below work from then on.
     </p>
 
     <div class="downloads">
-      <a class="btn btn-primary btn-lg" href="https://github.com/jzbz/patina/releases/latest">
-        <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Downloads
+      <a class="btn btn-primary btn-lg" href="https://github.com/jzbz/patina/releases">
+        <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Releases
       </a>
       <a class="btn btn-lg" href="https://github.com/jzbz/patina">
         <svg class="ico" aria-hidden="true"><use href="#i-external"/></svg>Source
@@ -791,9 +982,10 @@
 
     <p class="note">
       Linux, as a Flatpak bundle for <code>x86_64</code> or <code>aarch64</code>,
-      with libmpv, yt-dlp and Deno inside. In the sandbox Patina can read any
-      file, but on its own writes only to Downloads and Pictures/Patina. Download
-      the bundle for your architecture, then:
+      with libmpv, yt-dlp and Deno inside. Its runtime comes from Flathub, though
+      Patina itself is not on Flathub. In the sandbox Patina can read any file,
+      but on its own writes only to Downloads and Pictures/Patina. Download the
+      bundle for your architecture, then:
     </p>
 
     <div class="cmd" data-copy="flatpak install ./patina-*.flatpak">
@@ -803,7 +995,12 @@
       </button>
     </div>
 
-    <p class="note">macOS 11 and later, one universal app, signed and notarised.</p>
+    <p class="note">
+      macOS 11 and later, one universal app, signed and notarised, with libmpv,
+      yt-dlp and ffmpeg inside. Homebrew installs it and a <code>patina</code>
+      command. Apart from CI's tests, nothing has been tried on Apple Silicon,
+      and neither has the signed, notarised app.
+    </p>
 
     <div class="cmd" data-copy="brew install --cask jzbz/tap/patina">
       <code>brew install --cask jzbz/tap/patina</code>
@@ -814,7 +1011,9 @@
 
     <p class="note">
       Windows 10 and 11, an installer that installs for you alone and needs no
-      administrator rights, or a folder to run from anywhere. Or from winget:
+      administrator rights, or a folder to run from anywhere. Both carry
+      libmpv, yt-dlp and an LGPL ffmpeg. This will install it once winget has
+      the package:
     </p>
 
     <div class="cmd" data-copy="winget install Patina.Patina">
@@ -825,16 +1024,20 @@
     </div>
 
     <p class="note">
-      On macOS and Windows, online video and the YouTube client also need
-      <a href="https://github.com/yt-dlp/yt-dlp">yt-dlp</a> installed. The Flatpak
-      brings its own.
+      Every package carries <a href="https://github.com/yt-dlp/yt-dlp">yt-dlp</a>
+      for online video and the YouTube client, and ffmpeg to join video and
+      audio (the Flatpak Deno as well), so nothing else needs installing. On
+      macOS and Windows a newer yt-dlp of your own is used instead; the
+      Flatpak keeps to its own.
     </p>
 
     <p class="note">
       Every release carries one <code>SHA256SUMS</code> covering all of these,
       signed by hand with the key
       <code class="fingerprint">252B 901C 8885 3CF9 F939 2559 2497 38C8 641C 3359</code>.
-      Check it before trusting any of the above:
+      Get it with <code>gpg --locate-keys jz@jz.bz</code> and compare
+      <code>gpg --fingerprint jz@jz.bz</code> with that. Then check the
+      packages before trusting any of them:
     </p>
 
     <div class="cmd cmd-dim" data-copy="gpg --verify SHA256SUMS.asc SHA256SUMS &amp;&amp; sha256sum -c SHA256SUMS">
@@ -853,7 +1056,7 @@
     <div class="colophon-brand">
       <img class="brand-icon" src="assets/images/icon.svg" alt="" width="38" height="38">
       <span class="wordmark">Patina</span>
-      <p>A media player for Linux, macOS and Windows.</p>
+      <p>A media player for Linux, macOS and Windows, built on mpv, with Jellyfin and YouTube clients.</p>
     </div>
 
     <nav class="colophon-links" aria-label="Elsewhere">
@@ -865,7 +1068,10 @@
 
     <p class="colophon-small">
       MIT licensed; mpv and the other parts it is built on keep their own
-      licences.
+      licences. The Flatpak builds mpv under the GPL, which makes that package
+      GPL, and Patina.app and the Windows packages carry LGPL builds of libmpv.
+      Patina is an independent project, not affiliated with Jellyfin,
+      OpenSubtitles, YouTube or Google.
     </p>
 
     <!-- Third-party licences for this site: the icons are Lucide (ISC) and the

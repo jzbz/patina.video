@@ -398,11 +398,12 @@ svg { display: block; }
 
 /* ------------------------------------------------------- the app window
  *
- * Rebuilt from ui/controls.slint, ui/sidebar.slint and ui/theme.slint, at the
- * app's own sizes: a 32px title bar over the video, a 460x74 controller, and a
- * 340px sidebar laid over the right of the picture. Every value here belongs
- * to the app, and none of it moves with the page's theme. It is the window at
- * 1180px, in 16:9, and not a picture of it.
+ * Rebuilt from ui/controls.slint, ui/sidebar.slint, ui/welcome.slint and
+ * ui/theme.slint, at the app's own sizes: a 32px title bar over the video, a
+ * 460x74 controller, and a 340px sidebar laid over the right of the picture.
+ * Type is the app's 14px, 12px for small print and 16px for headings. Every
+ * value here belongs to the app, and none of it moves with the page's theme.
+ * It is the window at 1180px, in 16:9, and not a picture of it.
  */
 
 .window-section { padding-bottom: 96px; }
@@ -429,19 +430,23 @@ svg { display: block; }
     min-height: 320px;
 }
 
-.player {
+.player,
+.dark-window {
     --a-osc: #1d1d1fe0;
     --a-osc-border: #ffffff1a;
     --a-panel: #1b1b1df2;
     --a-divider: #ffffff14;
     --a-titlebar: #242426d0;
     --a-osd: #1d1d1fd8;
+    --a-menu: #2a2a2cf5;
     --a-text: #ffffffeb;
     --a-secondary: #ffffff99;
     /* theme.slint's tertiary-text is #ffffff5c. Over a page it fails AA on the
        playlist's paths, which people read here and only glance at there. */
     --a-tertiary: #ffffff80;
     --a-icon: #ffffffd9;
+    --a-icon-pressed: #ffffffa8;
+    --a-icon-disabled: #ffffff4d;
     --a-hover: #ffffff14;
     --a-pressed: #ffffff24;
     --a-track: #ffffff38;
@@ -453,7 +458,12 @@ svg { display: block; }
     --a-selection: #2f7ef640;
     --a-playing: #6cc4ac;
     --a-close: #e5484d;
+    color: var(--a-text);
+    font-size: 14px;
+    line-height: 1.35;
+}
 
+.player {
     position: absolute;
     inset: 0;
     overflow: hidden;
@@ -461,9 +471,6 @@ svg { display: block; }
     border-radius: var(--r-md);
     background: #000;
     box-shadow: 0 24px 70px #00000059;
-    color: var(--a-text);
-    font-size: 13px;
-    line-height: 1.35;
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
@@ -472,12 +479,14 @@ svg { display: block; }
 .player :focus-visible { outline: 2px solid var(--a-accent); outline-offset: 1px; border-radius: 6px; }
 .player.is-idle { cursor: none; }
 
-.player button,
-.player input { font: inherit; color: inherit; }
+/* Under every class of the window's own, which set their own sizes and
+   colours: at the specificity of an element selector inside .player, this
+   took the controller's end time and its buttons' colour from them. */
+.player :where(button, input) { font: inherit; color: inherit; }
 
 /* What runs when the fade is the point: everything over the picture is one of
    these, and they go together. */
-.fades { transition: opacity var(--settle) ease-out; }
+.fades { transition: opacity 250ms ease-out; }
 .player.is-idle .fades { opacity: 0; pointer-events: none; }
 
 .picture { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; }
@@ -500,6 +509,8 @@ svg { display: block; }
     background: var(--a-titlebar);
     z-index: 3;
 }
+/* The same bar over the library and the YouTube section, in the figures. */
+.titlebar.is-static { position: relative; }
 .tb-icon { width: 15px; height: 15px; color: #8cb4ff; }
 .tb-title {
     flex: 1;
@@ -509,7 +520,7 @@ svg { display: block; }
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.tb-win { display: flex; margin-left: 4px; }
+.tb-win { display: flex; margin-left: 4px; align-self: stretch; }
 .tb-win span {
     display: grid;
     place-items: center;
@@ -517,9 +528,15 @@ svg { display: block; }
     color: var(--a-icon);
 }
 .tb-win .ico { width: 14px; height: 14px; }
+/* On the welcome screen the bar says Patina, with no file and no Home, and
+   picture-in-picture has nothing to show. The file icon keeps its place, as
+   Slint lays out an Image that isn't visible; Home is left out with an if. */
+.player.is-home .tb-icon { visibility: hidden; }
+.player.is-home #tbHome { display: none; }
+.player.is-home #tbPip { background: transparent; }
 
-/* IconButton. The app's hover is a filled rounded square, and only where it
-   asks for one. */
+/* IconButton: the icon brightens on hover and dims while pressed. The filled
+   square behind it is only where the app asks for one. */
 .ib {
     display: grid;
     place-items: center;
@@ -531,41 +548,54 @@ svg { display: block; }
     background: transparent;
     color: var(--a-icon);
     cursor: pointer;
-    transition: background-color var(--quick) ease-out, color var(--quick) ease-out;
+    transition: background-color var(--quick) ease-out, color 100ms ease-out;
 }
 span.ib { cursor: default; }
-button.ib:hover { background: var(--a-hover); color: #fff; }
-button.ib:active { background: var(--a-pressed); }
-.ib.is-active { color: #6ea5ff; }
+button.ib:hover { color: #fff; }
+button.ib:active { color: var(--a-icon-pressed); }
+.ib.is-active,
+button.ib.is-active:hover { color: var(--a-accent); }
+.ib.is-disabled,
+button.ib:disabled { color: var(--a-icon-disabled); cursor: default; }
+.titlebar button.ib:hover,
+#sideClose:hover,
+.pip-back:hover { background: var(--a-hover); }
+.titlebar button.ib:active,
+#sideClose:active,
+.pip-back:active { background: var(--a-pressed); }
 .ib .ico { width: 16px; height: 16px; }
 
 /* ------------------------------------------------------- the on-screen text */
 
 .osd {
     position: absolute;
-    left: 16px; top: 44px;
+    left: 14px; top: 44px;
     max-width: min(420px, 70%);
     padding: 8px 14px 9px;
     border: 1px solid var(--a-osc-border);
     border-radius: 8px;
     background: var(--a-osd);
     opacity: 0;
-    transition: opacity 300ms ease-out;
+    transition: opacity 300ms ease-out, top 200ms ease-out;
     pointer-events: none;
     z-index: 2;
 }
-.osd.is-on { opacity: 1; transition-duration: 80ms; }
+/* Up into the title bar's place while that is away. */
+.player.is-idle .osd,
+.player:fullscreen .osd { top: 12px; }
+.osd.is-on { opacity: 1; transition-duration: 80ms, 200ms; }
 .osd-text {
     display: block;
-    font-size: 22px;
+    font-size: 20px;
     line-height: 1.25;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.osd .note-line { display: block; margin-top: 5px; color: var(--a-secondary); font-size: 12px; }
 .osd-bar {
     display: block;
-    width: 180px;
+    min-width: 180px;
     height: 5px;
     margin-top: 5px;
     border-radius: 2.5px;
@@ -591,9 +621,11 @@ button.ib:active { background: var(--a-pressed); }
 .osc {
     --width: 460px;
     position: absolute;
-    /* Centred in what the sidebar leaves, with any distance it has been
-       dragged added on. */
-    left: calc((100% - var(--sidebar, 0px) - var(--width)) / 2 + var(--drag-x, 0px));
+    /* Centred on the whole window, with any distance it has been dragged
+       added on, and kept 8px from the edge and from an open sidebar. */
+    left: clamp(8px,
+               calc((100% - var(--width)) / 2 + var(--drag-x, 0px)),
+               calc(100% - var(--width) - 8px - var(--sidebar, 0px)));
     bottom: calc(24px - var(--drag-y, 0px));
     width: var(--width);
     height: 74px;
@@ -605,17 +637,18 @@ button.ib:active { background: var(--a-pressed); }
     z-index: 4;
     touch-action: none;
 }
-.osc-volume {
-    position: absolute;
-    left: 10px; top: 6px;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-.osc-volume .ib .ico { width: 18px; height: 18px; }
+.player.is-home .osc,
+.player.is-home .preview { display: none; }
 
-/* The app's Slider, on a real range input. */
+.osc #mute { position: absolute; left: 12px; top: 8px; }
+.osc #mute .ico { width: 18px; height: 18px; }
+#volume { position: absolute; left: 42px; top: 14px; }
+
+/* The app's Slider, on a real range input: a 3px track inset by half the
+   knob at each end, so the knob's centre runs from end to end of it. */
 .slider {
+    --f: 0.5;
+    --k: 12px;
     display: block;
     width: 76px;
     height: 16px;
@@ -624,24 +657,30 @@ button.ib:active { background: var(--a-pressed); }
     -webkit-appearance: none;
     appearance: none;
     cursor: pointer;
-    --v: 50%;
 }
 .slider::-webkit-slider-runnable-track {
     height: 3px;
     border-radius: 1.5px;
-    background: linear-gradient(90deg, var(--a-fill) var(--v), var(--a-track) var(--v));
+    background: linear-gradient(90deg,
+        transparent calc(var(--k) / 2),
+        var(--a-fill) calc(var(--k) / 2),
+        var(--a-fill) calc(var(--k) / 2 + (100% - var(--k)) * var(--f)),
+        var(--a-track) calc(var(--k) / 2 + (100% - var(--k)) * var(--f)),
+        var(--a-track) calc(100% - var(--k) / 2),
+        transparent calc(100% - var(--k) / 2));
 }
 .slider::-moz-range-track { height: 3px; border-radius: 1.5px; background: var(--a-track); }
 .slider::-moz-range-progress { height: 3px; border-radius: 1.5px; background: var(--a-fill); }
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 12px; height: 12px;
-    margin-top: -4.5px;
+    width: var(--k); height: var(--k);
+    margin-top: calc((3px - var(--k)) / 2);
     border: 0;
     border-radius: 50%;
     background: #fff;
+    box-shadow: 0 0 3px #00000066;
 }
-.slider::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #fff; }
+.slider::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 3px #00000066; }
 
 .osc-transport {
     position: absolute;
@@ -665,29 +704,33 @@ button.ib:active { background: var(--a-pressed); }
     position: absolute;
     top: 12px;
     color: var(--a-secondary);
-    font-size: 10px;
+    font-size: 11px;
     pointer-events: none;
+    white-space: nowrap;
 }
 
+/* The toolbar: each 24px button carries a 2px gap before it. Home comes
+   first where the title bar isn't drawn, which here is full screen. */
 .osc-tools {
     position: absolute;
-    right: 8px; top: 6px;
+    right: 10px; top: 8px;
     display: flex;
-    gap: 2px;
 }
-.osc-tools .ib { width: 24px; }
+.osc-tools .ib { width: 24px; margin-left: 2px; }
 .osc-tools .ib .ico { width: 17px; height: 17px; }
+.osc-tools .home-tool { display: none; }
+.player:fullscreen .osc-tools .home-tool { display: grid; }
 
 .osc-time {
     position: absolute;
     top: 44px;
-    width: 58px;
+    width: 64px;
     height: 18px;
     padding: 0;
     border: 0;
     background: transparent;
     color: var(--a-secondary);
-    font-size: 12px;
+    font-size: 13px;
     line-height: 18px;
     text-align: center;
     font-variant-numeric: tabular-nums;
@@ -699,7 +742,7 @@ button.ib:active { background: var(--a-pressed); }
    A-B loop on the track, chapter ticks across it, and a 3x15 knob. */
 .seek {
     position: absolute;
-    left: 70px; right: 70px; top: 44px;
+    left: 76px; right: 76px; top: 44px;
     height: 18px;
     cursor: pointer;
     touch-action: none;
@@ -737,11 +780,11 @@ button.ib:active { background: var(--a-pressed); }
     box-shadow: 0 0 2px #00000080;
 }
 
-/* The seek preview: the thumbnail at the hovered time, the time, and the
-   chapter there. Drawn by the same code as the picture. */
+/* The seek preview: the thumbnail at the hovered time, 120px wide as the
+   app's default has it, the time, and the chapter there. Drawn by the same
+   code as the picture, 6px above the controller and within its width. */
 .preview {
     position: absolute;
-    bottom: 88px;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -754,12 +797,12 @@ button.ib:active { background: var(--a-pressed); }
     pointer-events: none;
     z-index: 5;
 }
-.preview canvas { display: block; width: 176px; height: 99px; border-radius: 4px; }
-.preview-time { font-size: 12px; font-variant-numeric: tabular-nums; }
+.preview canvas { display: block; width: 120px; height: 67.5px; border-radius: 4px; }
+.preview-time { font-size: 13px; font-variant-numeric: tabular-nums; }
 .preview-chapter {
-    max-width: 176px;
+    max-width: 120px;
     color: var(--a-secondary);
-    font-size: 10px;
+    font-size: 11px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -780,30 +823,38 @@ button.ib:active { background: var(--a-pressed); }
     z-index: 3;
     cursor: default;
 }
+.player:fullscreen .sidebar { top: 0; }
 .side-head { display: flex; align-items: center; gap: 8px; }
-.side-head .ib { width: 22px; height: 22px; }
+.side-head .ib { margin-top: -4px; }
 .side-head .ib .ico { width: 13px; height: 13px; }
 
+/* Segmented: 24px, with 2px between its segments. */
 .segmented {
     flex: 1;
     display: flex;
+    gap: 2px;
     min-width: 0;
+    height: 24px;
     padding: 2px;
     border: 1px solid var(--a-field-border);
     border-radius: 6px;
     background: var(--a-field);
 }
+/* Each segment as wide as its words, and what is left shared out evenly, as
+   a Slint layout does it. */
 .segmented button {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
-    height: 22px;
     padding: 0 2px;
     border: 0;
     border-radius: 4px;
     background: transparent;
     cursor: pointer;
     font-size: 13px;
+    line-height: 1;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .segmented button:hover { background: var(--a-hover); }
 .segmented button[aria-pressed="true"] { background: var(--a-accent); color: #fff; }
@@ -812,17 +863,21 @@ button.ib:active { background: var(--a-pressed); }
 .side-scroll {
     flex: 1;
     min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: #ffffff38 transparent;
-    padding-right: 2px;
+    padding-right: 8px;
 }
+#panel-playlist .side-scroll,
+#panel-chapters .side-scroll { display: block; padding-right: 2px; }
 
-.pl-head { display: flex; align-items: center; height: 28px; margin-bottom: 8px; }
-.pl-count { flex: 1; color: var(--a-secondary); font-size: 11px; }
-.pl-head .ib .ico { width: 15px; height: 15px; }
-.pl-head .ib { width: 30px; }
+.pl-head { display: flex; align-items: center; gap: 4px; height: 28px; margin-bottom: 8px; }
+.pl-count { flex: 1; color: var(--a-secondary); font-size: 12px; }
+.pl-head .ib .ico { width: 16px; height: 16px; }
 
 .row {
     position: relative;
@@ -845,91 +900,111 @@ button.ib:active { background: var(--a-pressed); }
     width: 18px;
     flex: none;
     color: var(--a-tertiary);
-    font-size: 11px;
+    font-size: 12px;
 }
 .row-n .ico { width: 11px; height: 11px; color: var(--a-playing); }
 .row-id { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .row-title {
-    font-size: 13px;
+    font-size: 14px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 .row-sub {
     color: var(--a-tertiary);
-    font-size: 11px;
+    font-size: 12px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.row-time { flex: none; color: var(--a-secondary); font-size: 11px; font-variant-numeric: tabular-nums; }
+.row-time { flex: none; color: var(--a-secondary); font-size: 12px; font-variant-numeric: tabular-nums; }
 .row.is-current .row-title { color: var(--a-playing); font-weight: 600; }
-/* How much of it you watched. */
+/* How much of it you watched, across all but 44px of the row. */
 .row-seen {
     position: absolute;
-    left: 34px; bottom: 3px;
+    left: 34px; bottom: 2px;
     height: 2px;
     border-radius: 1px;
     background: var(--a-playing);
     opacity: 0.7;
 }
-.row-chapter { height: 34px; }
+/* Chapters: the title and its time, the current one on the selection. */
+.row-chapter { height: 34px; padding: 0 10px; }
+.row-chapter.is-current { background: var(--a-selection); }
 
 .side-foot { display: flex; gap: 6px; margin-top: 8px; }
+/* TextButton. */
 .side-btn {
     display: inline-flex;
     align-items: center;
+    align-self: flex-start;
     gap: 6px;
     height: 28px;
-    padding: 0 10px;
+    padding: 0 12px;
     border-radius: 6px;
-    background: #ffffff14;
-    font-size: 13px;
+    background: #ffffff1a;
+    font-size: 14px;
+    white-space: nowrap;
 }
-.side-btn .ico { width: 13px; height: 13px; }
-.side-btn:last-child { margin-left: auto; }
+.side-btn .ico { width: 15px; height: 15px; }
+.side-foot .side-btn:last-child { margin-left: auto; }
+.side-btn.is-off { color: var(--a-text); }
 button.side-btn { border: 0; cursor: pointer; }
-button.side-btn:hover { background: var(--a-pressed); }
+button.side-btn:hover { background: #ffffff24; }
+button.side-btn:active { background: #ffffff2e; }
 
-.group + .group { margin-top: 18px; }
+.group { display: flex; flex-direction: column; gap: 6px; }
+.group.loose { gap: 14px; }
 .group-title {
-    margin-bottom: 8px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid var(--a-divider);
     color: var(--a-secondary);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.4px;
 }
 .group .segmented { flex: none; }
+.side-scroll > .segmented { flex: none; }
+.divider { flex: none; width: 100%; height: 1px; margin: 0; border: 0; background: var(--a-divider); }
 
 .line {
     display: flex;
     align-items: center;
     gap: 8px;
     min-height: 28px;
-    font-size: 13px;
+    font-size: 14px;
 }
 .line > span:first-child { flex: 1; min-width: 0; }
-.line-read {
-    flex: none;
-    width: 42px;
-    color: var(--a-secondary);
-    font-size: 11px;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-}
-.line .slider { flex: none; width: 150px; }
-.note-line { margin-top: 6px; color: var(--a-tertiary); font-size: 11px; }
+.note-line { color: var(--a-tertiary); font-size: 12px; }
 
-/* The toggle out of the preferences window, on a real checkbox. */
+/* ValueSlider: the label, the value and a reset button on one line, and the
+   slider under them, with a tick at the middle where the middle is neutral. */
+.vs { display: flex; flex-direction: column; gap: 2px; }
+.vs-head { display: flex; align-items: center; gap: 6px; }
+.vs-head label { flex: 1; min-width: 0; }
+.vs-read { color: var(--a-secondary); font-size: 12px; font-variant-numeric: tabular-nums; }
+.vs-reset { width: 20px; height: 20px; }
+.vs-reset .ico { width: 13px; height: 13px; }
+.vs-track { position: relative; display: block; }
+.vs-track .slider { --k: 13px; width: 100%; }
+.vs-track.is-centered::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 3.5px;
+    width: 1px; height: 9px;
+    background: var(--a-tertiary);
+}
+.vs-ticks { display: flex; color: var(--a-tertiary); font-size: 11px; }
+.vs-ticks span { flex: 1; text-align: center; }
+.vs-ticks span:first-child { text-align: left; }
+.vs-ticks span:last-child { text-align: right; }
+
+/* Switch, on a real checkbox. */
 .toggle {
     position: relative;
     flex: none;
     width: 34px; height: 20px;
     margin: 0;
     border-radius: 10px;
-    background: #ffffff38;
+    background: #ffffff30;
     -webkit-appearance: none;
     appearance: none;
     cursor: pointer;
@@ -942,13 +1017,23 @@ button.side-btn:hover { background: var(--a-pressed); }
     width: 16px; height: 16px;
     border-radius: 50%;
     background: #fff;
+    box-shadow: 0 0 2px #00000059;
     transition: transform var(--quick) ease-out;
 }
 .toggle:checked { background: var(--a-accent); }
 .toggle:checked::after { transform: translateX(14px); }
 
 .eq { display: flex; justify-content: space-between; gap: 2px; }
-.eq-band { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--a-tertiary); font-size: 9px; }
+.eq-band { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--a-tertiary); font-size: 10px; }
+/* EqualizerBand's tick at 0 dB, behind the handle. */
+.eq-band::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50px;
+    width: 9px; height: 1px;
+    margin-left: -4.5px;
+    background: var(--a-tertiary);
+}
 /* The app's EqualizerBand: a 3px track and a 14x8 handle, on a real range input
    stood on end. */
 .eq-band input {
@@ -967,19 +1052,105 @@ button.side-btn:hover { background: var(--a-pressed); }
 .eq-band input::-moz-range-track { width: 3px; border-radius: 1.5px; background: var(--a-track); }
 .eq-band input::-webkit-slider-thumb {
     -webkit-appearance: none;
+    position: relative;
     width: 14px; height: 8px;
     margin-left: -5.5px;
-    border-radius: 2px;
+    border-radius: 4px;
     background: #fff;
+    box-shadow: 0 0 2px #00000066;
 }
-.eq-band input::-moz-range-thumb { width: 14px; height: 8px; border: 0; border-radius: 2px; background: #fff; }
+.eq-band input::-moz-range-thumb { width: 14px; height: 8px; border: 0; border-radius: 4px; background: #fff; }
 
-.track-row {
+/* ChoiceRow: the chosen one is in bold with the accent's check, and only a
+   hovered one is filled. */
+.choice {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
-    min-height: 30px;
+    min-height: 28px;
+    padding: 0 8px 0 6px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    text-align: left;
+}
+button.choice { cursor: pointer; }
+button.choice:hover { background: var(--a-hover); }
+.choice .ico { width: 16px; height: 14px; color: var(--a-accent); visibility: hidden; }
+.choice span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.choice.is-on .ico,
+.choice[aria-pressed="true"] .ico { visibility: visible; }
+.choice.is-on span,
+.choice[aria-pressed="true"] span { font-weight: 600; }
+
+/* ---------------------------------------------------- the welcome screen */
+
+/* ui/welcome.slint: a column of actions under the app's name, and Recent
+   in a panel beside it. */
+.welcome {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    gap: 28px;
+    padding: 52px 28px 28px;
+    background: #141416;
+    z-index: 2;
+    cursor: default;
+}
+.wel-column {
+    flex: none;
+    width: min(320px, 45%);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+.wel-icon { width: 83px; height: 83px; max-width: none; margin: -8px; flex: none; }
+.wel-name { font-size: 28px; font-weight: 700; line-height: 1.2; }
+.wel-version { color: var(--a-tertiary); font-size: 12px; }
+.wel-actions { display: flex; flex-direction: column; gap: 6px; margin-top: 18px; }
+.wel-action {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 48px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    text-align: left;
+}
+button.wel-action { cursor: pointer; }
+button.wel-action:hover { background: var(--a-hover); }
+button.wel-action:active { background: var(--a-pressed); }
+.wel-action .ico { width: 20px; height: 20px; color: var(--a-playing); }
+.wel-action > span { display: flex; flex-direction: column; min-width: 0; }
+.wel-action b,
+.wel-action i { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wel-action b { font-weight: 600; }
+.wel-action i { color: var(--a-tertiary); font-size: 12px; font-style: normal; }
+.wel-recent {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--a-divider);
+    border-radius: 8px;
+    background: #ffffff08;
+}
+.wel-recent-head { display: flex; align-items: center; justify-content: space-between; height: 28px; color: var(--a-secondary); font-size: 12px; font-weight: 600; }
+.wel-recent-rows { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #ffffff38 transparent; }
+.recent-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 44px;
     padding: 0 8px;
     border: 0;
     border-radius: 6px;
@@ -987,10 +1158,17 @@ button.side-btn:hover { background: var(--a-pressed); }
     cursor: pointer;
     text-align: left;
 }
-.track-row:hover { background: var(--a-hover); }
-.track-row[aria-pressed="true"] { background: var(--a-selection); }
-.track-row .ico { width: 12px; height: 12px; color: var(--a-playing); visibility: hidden; }
-.track-row[aria-pressed="true"] .ico { visibility: visible; }
+.recent-row:hover { background: var(--a-hover); }
+/* Inside the row: the column and the Recent list scroll, and would cut off a
+   ring drawn outside it. */
+.player .wel-action:focus-visible,
+.player .recent-row:focus-visible { outline-offset: -2px; }
+.recent-row .ico { width: 18px; height: 18px; color: #8cb4ff; }
+.recent-row > span { display: flex; flex-direction: column; min-width: 0; }
+.recent-row b,
+.recent-row i { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recent-row b { font-weight: 400; }
+.recent-row i { color: var(--a-tertiary); font-size: 12px; font-style: normal; }
 
 /* --------------------------------------------- picture-in-picture, in the page */
 
@@ -1023,26 +1201,39 @@ button.side-btn:hover { background: var(--a-pressed); }
 .player.is-pip .preview,
 .player.is-pip .sidebar,
 .player.is-pip .osd { display: none; }
+/* Play or pause in the middle, the way back at the top right, and a line of
+   progress along the bottom, on a shade that is darkest at the edges. */
 .pip-controls {
     position: absolute;
     inset: 0;
     display: none;
     place-items: center;
-    background: #00000059;
+    background: linear-gradient(180deg, #00000060 0%, #00000000 40%, #00000000 60%, #00000080 100%);
     opacity: 0;
     transition: opacity var(--settle) ease-out;
 }
 .player.is-pip .pip-controls { display: grid; }
 .player.is-pip:hover .pip-controls,
 .player.is-pip:focus-within .pip-controls { opacity: 1; }
-.pip-controls .ib { width: 44px; height: 44px; }
-.pip-controls .ib .ico { width: 28px; height: 28px; }
-.pip-back { position: absolute; right: 6px; top: 6px; width: 28px !important; height: 28px !important; }
-.pip-back .ico { width: 16px !important; height: 16px !important; }
+.pip-controls #pipPlay { width: 52px; height: 52px; }
+.pip-controls #pipPlay .ico { width: 30px; height: 30px; }
+.pip-back { position: absolute; right: 6px; top: 6px; }
+.pip-progress {
+    position: absolute;
+    left: 10px; right: 10px; bottom: 7px;
+    height: 3px;
+    border-radius: 1.5px;
+    background: var(--a-track);
+    overflow: hidden;
+}
+.pip-progress i { display: block; height: 100%; width: 0; background: var(--a-fill); }
 
 /* --------------------------------------------------------- full screen */
 
+/* No title bar: Home moves to the controller's toolbar. */
 .player:fullscreen { border: 0; border-radius: 0; }
+.player:fullscreen .titlebar { display: none; }
+.player:fullscreen .welcome { padding-top: 28px; }
 
 /* ---------------------------------------------------------- under the window */
 
@@ -1159,61 +1350,88 @@ kbd {
 
 /* ---------------------------------------------- Jellyfin, in the window */
 
+/* The library and the YouTube section as the window shows them, under its
+   title bar, from ui/library.slint, ui/library-parts.slint, ui/youtube.slint
+   and ui/youtube-card.slint. Its tokens are the player's, above. */
 .dark-window {
-    --a-text: #ffffffeb;
-    --a-secondary: #ffffff99;
-    --a-tertiary: #ffffff80;
-    --a-track: #ffffff38;
-    --a-playing: #6cc4ac;
-    --a-accent: #2f7ef6;
-    --a-divider: #ffffff14;
-    --a-osc-border: #ffffff1a;
     overflow: hidden;
     border: 1px solid #ffffff24;
     border-radius: var(--r-md);
     background: #141416;
     box-shadow: 0 24px 60px #00000040;
-    color: var(--a-text);
-    font-size: 13px;
-    line-height: 1.35;
     text-align: left;
 }
 
-.library { margin-top: 40px; }
+.library { margin-top: 40px; container-type: inline-size; }
+
+/* LibraryBar: Back, the entries, and the account, 6px under the title bar. */
 .lib-bar {
     display: flex;
     align-items: center;
-    gap: var(--s2);
-    height: 44px;
-    padding: 0 var(--s3);
-    border-bottom: 1px solid var(--a-divider);
+    gap: 8px;
+    height: 32px;
+    margin-top: 6px;
+    padding: 0 16px;
 }
+.lib-back .ico { width: 18px; height: 18px; }
 .lib-nav { display: flex; gap: 2px; min-width: 0; overflow: hidden; }
+/* NavEntry: the current one on the pressed shade, in semibold. */
 .lib-nav span {
-    padding: 4px 10px;
+    flex: none;
+    height: 28px;
+    padding: 0 11px;
     border-radius: 6px;
     color: var(--a-secondary);
+    line-height: 28px;
     white-space: nowrap;
 }
-.lib-nav .is-on { background: var(--a-accent); color: #fff; }
-.lib-server {
+.lib-nav .is-on { background: var(--a-pressed); color: var(--a-text); font-weight: 600; }
+.lib-nav .lib-search { margin-left: 8px; }
+.lib-account {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    height: 32px;
     margin-left: auto;
-    color: var(--a-secondary);
-    font-size: 12px;
+    padding: 0 8px 0 4px;
     white-space: nowrap;
 }
-.lib-server .ico { width: 14px; height: 14px; }
-.lib-body { padding: var(--s3) var(--s4) var(--s4); }
-.lib-strip-title { margin: var(--s2) 0; font-size: 15px; font-weight: 600; }
-.lib-cards {
+.lib-avatar {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--s3);
+    place-items: center;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: #ffffff1f;
+    color: var(--a-secondary);
 }
-.lib-card { min-width: 0; }
+.lib-avatar .ico { width: 13px; height: 13px; }
+.lib-who { display: flex; flex-direction: column; font-size: 12px; line-height: 1.3; }
+.lib-who b { font-weight: 600; }
+.lib-who i { color: var(--a-secondary); font-style: normal; }
+.lib-down { width: 12px; height: 12px; color: var(--a-secondary); }
+
+.lib-body { padding: 12px 0 22px; }
+/* StripHeader: the row's title, and arrows that scroll the row. */
+.lib-head {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 28px;
+    padding: 0 22px 0 28px;
+}
+.lib-head .ib .ico { width: 16px; height: 16px; }
+.lib-strip-title { flex: 1; min-width: 0; font-size: 16px; font-weight: 600; }
+/* CardStrip: cards at their own width, running on past the edge. */
+.lib-row {
+    display: flex;
+    gap: 16px;
+    margin: 8px 0 22px;
+    padding: 0 28px;
+    overflow: hidden;
+}
+.lib-row:last-child { margin-bottom: 0; }
+.lib-card { flex: none; width: 288px; min-width: 0; }
+.lib-row.is-posters .lib-card { width: 180px; }
 .lib-art {
     position: relative;
     display: block;
@@ -1221,15 +1439,10 @@ kbd {
     aspect-ratio: 16 / 9;
     overflow: hidden;
     border-radius: 8px;
-    background: #000;
+    background: #ffffff0f;
 }
 .lib-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .lib-art.is-poster { aspect-ratio: 2 / 3; }
-.lib-posters {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: var(--s3);
-}
 .lib-progress {
     position: absolute;
     left: 0; right: 0; bottom: 0;
@@ -1237,55 +1450,114 @@ kbd {
     background: #00000099;
 }
 .lib-progress i { display: block; height: 100%; background: var(--a-playing); }
-.lib-title {
-    display: block;
-    margin-top: 6px;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+.lib-title,
 .lib-sub {
     display: block;
-    color: var(--a-secondary);
-    font-size: 11px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.lib-title { margin-top: 6px; line-height: 19px; }
+.lib-sub { color: var(--a-secondary); font-size: 12px; line-height: 19px; }
 
-/* The YouTube section's bar and cards, from ui/youtube.slint and
-   ui/youtube-card.slint. It shares the library's strip and caption. */
-.yt-back { width: 16px; height: 16px; color: var(--a-secondary); }
-.yt-word { margin-right: var(--s2); font-weight: 600; }
-.yt-row { margin-top: var(--s3); }
+/* The YouTube section's bar, its status line and its grid. */
+.yt-word { font-size: 16px; font-weight: 700; }
 .yt-status {
     display: flex;
     align-items: center;
-    gap: var(--s3);
-    margin: var(--s1) 0 var(--s3);
+    gap: 8px;
+    height: 28px;
+    margin-bottom: 8px;
+    padding: 0 24px 0 28px;
     color: var(--a-secondary);
     font-size: 12px;
 }
-.yt-status .ico { width: 14px; height: 14px; }
-.yt-shorts {
-    margin-left: auto;
-    padding: 2px 10px;
-    border: 1px solid var(--a-osc-border);
-    border-radius: 999px;
+.yt-status > span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.yt-status .ib .ico { width: 16px; height: 16px; }
+/* Chip, off. */
+.yt-chip {
+    height: 28px;
+    padding: 0 12px;
+    border-radius: 14px;
+    background: #ffffff1a;
+    color: var(--a-text);
+    font-size: 14px;
+    line-height: 28px;
 }
-.yt-badge {
+/* As many columns as cards of about 288px fit, rounded, 16px apart. */
+.yt-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    padding: 0 28px;
+}
+.yt-card { position: relative; min-width: 0; padding-bottom: 6px; }
+.yt-title {
+    display: -webkit-box;
+    height: 38px;
+    margin-top: 6px;
+    overflow: hidden;
+    line-height: 19px;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+.yt-channel,
+.yt-facts {
+    display: block;
+    margin-right: 28px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.yt-channel { margin-top: 1px; color: var(--a-secondary); line-height: 17px; }
+.yt-facts { color: var(--a-tertiary); line-height: 16px; }
+.yt-more { position: absolute; right: -4px; bottom: 2px; }
+.yt-more .ico { width: 16px; height: 16px; }
+/* Pill: a word or a length on a plate. */
+.yt-pill {
     position: absolute;
-    right: 5px; bottom: 7px;
+    height: 18px;
     padding: 0 5px;
     border-radius: 4px;
     background: #000000c8;
     color: #fff;
-    font-size: 11px;
+    font-size: 12px;
+    font-weight: 600;
     line-height: 18px;
     font-variant-numeric: tabular-nums;
 }
-.yt-live { background: #e5484d; font-weight: 600; }
+.yt-length { right: 6px; bottom: 8px; }
+.yt-live { left: 6px; top: 6px; background: #d32f2f; }
+/* Watch Later's clock, kept in sight on a saved video. */
+.yt-saved {
+    position: absolute;
+    right: 6px; top: 6px;
+    display: grid;
+    place-items: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--a-accent);
+    color: #fff;
+}
+.yt-saved .ico { width: 15px; height: 15px; }
+
+@container (max-width: 800px) {
+    .yt-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .yt-card:nth-child(n + 7) { display: none; }
+}
+@container (max-width: 620px) {
+    .yt-word { display: none; }
+}
+@container (max-width: 496px) {
+    .yt-grid { grid-template-columns: minmax(0, 1fr); }
+    .yt-card:nth-child(n + 3) { display: none; }
+    .lib-who { display: none; }
+}
+@container (min-width: 800px) {
+    .yt-card:nth-child(n + 7) { display: none; }
+}
 
 .bullets { margin-top: var(--s4); color: var(--dim); }
 .bullets li { position: relative; padding-left: 18px; line-height: 1.66; }
@@ -1307,66 +1579,100 @@ kbd {
     align-items: center;
 }
 .music {
+    position: relative;
     width: 300px;
     justify-self: center;
     user-select: none;
     -webkit-user-select: none;
 }
 .music-cover { display: block; width: 100%; aspect-ratio: 1; }
-.music-strip {
-    position: relative;
-    height: 72px;
-    background: #1b1b1df2;
-    text-align: center;
-}
-.music-id { position: absolute; inset: 7px 24px auto; transition: opacity var(--settle) ease-out; }
-.music-title { display: block; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.music-sub { display: block; margin-top: 3px; color: var(--a-secondary); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* The title gives way to the transport row while the pointer is over it. */
-.music-transport {
+/* Close, back and home, over the cover with the controls. */
+.music-buttons {
     position: absolute;
-    left: 0; right: 0; top: 10px;
+    left: 8px; top: 6px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 22px;
-    color: #ffffffd9;
+    flex-direction: column;
+    gap: 5px;
+    padding: 3px;
+    border-radius: 10px;
+    background: var(--a-osd);
+    color: var(--a-icon);
     opacity: 0;
     transition: opacity var(--settle) ease-out;
 }
-.music-transport .ico { width: 20px; height: 20px; }
-.music-transport .ico-big { width: 24px; height: 24px; }
-.music:hover .music-id { opacity: 0; }
-.music:hover .music-transport { opacity: 1; }
-.music-seek {
+.music-buttons .ico { width: 13px; height: 13px; }
+.music-strip {
+    position: relative;
+    height: 72px;
+    background: var(--a-panel);
+}
+.music-id {
     position: absolute;
-    left: 14px; right: 14px; top: 46px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    left: 24px; right: 24px; top: 7px;
+    text-align: center;
+    transition: opacity var(--settle) ease-out;
+}
+.music-title { display: block; font-weight: 700; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.music-sub { display: block; color: var(--a-secondary); font-size: 12px; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The title gives way to the controls while the pointer is over it, at the
+   app's places in a 300px strip. */
+.music-controls {
+    position: absolute;
+    inset: 0;
+    color: var(--a-icon);
+    opacity: 0;
+    transition: opacity var(--settle) ease-out;
+}
+.music-controls .ico { position: absolute; }
+.mc-volume { left: 45px; top: 15px; width: 18px; height: 18px; }
+.mc-prev { left: 90px; top: 14px; width: 20px; height: 20px; }
+.mc-play { left: 140px; top: 12px; width: 24px; height: 24px; }
+.mc-next { left: 190px; top: 14px; width: 20px; height: 20px; }
+.mc-list { left: 234.5px; top: 15.5px; width: 17px; height: 17px; }
+.mc-art { left: 269px; top: 16px; width: 16px; height: 16px; }
+.music-controls .is-active { color: var(--a-accent); }
+.music:hover .music-id { opacity: 0; }
+.music:hover .music-controls,
+.music:hover .music-buttons { opacity: 1; }
+.music-time {
+    position: absolute;
+    left: 4px; top: 44px;
+    width: 58px;
     color: var(--a-secondary);
-    font-size: 11px;
+    font-size: 12px;
+    line-height: 18px;
+    text-align: center;
     font-variant-numeric: tabular-nums;
 }
-.music-bar { position: relative; flex: 1; height: 3px; border-radius: 1.5px; background: var(--a-track); }
-.music-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 21%; border-radius: 1.5px; background: #ffffffcc; }
+.music-time.is-end { left: auto; right: 4px; }
+.music-bar { position: absolute; left: 64px; right: 64px; top: 51.5px; height: 3px; border-radius: 1.5px; background: var(--a-track); }
+.music-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 21%; border-radius: 1.5px; background: var(--a-fill); }
 .music-bar b { position: absolute; left: 21%; top: -6px; width: 3px; height: 15px; margin-left: -1.5px; border-radius: 1.5px; background: #fff; }
-.music-drawer { padding: 14px 12px 12px; border-top: 1px solid var(--a-divider); background: #1b1b1df2; }
+/* The sidebar as a drawer: a line along its top and no close button. */
+.music-drawer { display: flex; flex-direction: column; gap: 12px; padding: 14px 12px 12px; border-top: 1px solid var(--a-divider); background: var(--a-panel); }
 .music-tabs {
     display: flex;
+    gap: 2px;
+    height: 24px;
     padding: 2px;
-    border: 1px solid #ffffff1f;
+    border: 1px solid var(--a-field-border);
     border-radius: 6px;
-    background: #00000059;
+    background: var(--a-field);
+    font-size: 13px;
 }
-.music-tabs span { flex: 1; height: 22px; border-radius: 4px; line-height: 22px; text-align: center; }
+.music-tabs span { flex: 1 1 auto; border-radius: 4px; line-height: 18px; text-align: center; }
 .music-tabs .is-on { background: var(--a-accent); color: #fff; }
-.music-count { margin-top: 12px; color: var(--a-secondary); font-size: 11px; }
-.music-row { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 6px 0 8px; }
-.music-row:first-of-type { margin-top: 6px; }
+.music-count { display: flex; align-items: center; height: 28px; color: var(--a-secondary); font-size: 12px; }
+.music-count span { flex: 1; }
+.music-count .ico { width: 16px; height: 16px; margin: 0 6px 0 10px; color: var(--a-icon); }
+.music-count .ico:last-child { margin-right: 6px; }
+.music-row { display: flex; align-items: center; gap: 8px; height: 44px; margin-top: -12px; padding: 0 6px 0 8px; }
+.music-count + .music-row { margin-top: -4px; }
 .music-row .row-title { display: block; }
 .music-row .row-sub { display: block; }
 .music-row.is-current .row-title { color: var(--a-playing); font-weight: 600; }
+.music-foot { display: flex; gap: 6px; margin-top: -4px; }
+.music-foot .side-btn:last-child { margin-left: auto; }
 
 /* ---------------------------------------------------------- the keys */
 
@@ -1519,10 +1825,6 @@ kbd {
 @media (max-width: 1000px) {
     .head-nav { display: none; }
     .head-actions { margin-left: auto; }
-    .lib-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .lib-cards > :nth-child(4) { display: none; }
-    .lib-posters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .lib-posters > :nth-child(n + 5) { display: none; }
 }
 
 @media (max-width: 900px) {
@@ -1553,22 +1855,23 @@ kbd {
     .osc { --width: calc(100% - 16px); left: 8px; bottom: 8px; touch-action: auto; }
     .preview { display: none; }
     .osd-text { font-size: 18px; }
-    .lib-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .lib-cards > :nth-child(3) { display: none; }
-    .lib-posters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .lib-posters > :nth-child(n + 4) { display: none; }
-    .lib-nav span:nth-child(n + 4) { display: none; }
+    /* The welcome screen keeps its column, which scrolls, and leaves Recent
+       for a wider window. */
+    .welcome { padding: 44px 12px 12px; }
+    .wel-column { width: 100%; }
+    .wel-recent { display: none; }
+    /* The bar's entries fade out at the edge, as the app's do when they
+       outrun the bar. */
+    .lib-nav { -webkit-mask-image: linear-gradient(90deg, #000 80%, transparent); mask-image: linear-gradient(90deg, #000 80%, transparent); }
 }
 
 @media (max-width: 460px) {
-    .osc-volume { display: none; }
+    #mute, #volume { display: none; }
     .osc-transport { left: 8px; margin-left: 0; width: 132px; }
     #oscRight { right: 0; }
     .osc-transport #oscPlay { left: 46px; }
     .osc-tools .pip-tool { display: none; }
-    .lib-server { display: none; }
     .head-actions .btn:not(.btn-primary):not(.btn-icon) { display: none; }
-    .line .slider { width: 110px; }
 }
 
 /* Where there is no pointer there is no hover, so the copy button has to be

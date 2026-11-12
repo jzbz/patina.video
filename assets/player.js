@@ -1,9 +1,11 @@
 /* patina.video
  *
  * The window on the front page, working. It behaves as ui/controls.slint,
- * ui/sidebar.slint and src/window.rs say the app does: the same speed ladder
- * on the arrow buttons, the same words on screen, the controls gone after
- * 2.5 seconds, a click to show or hide them, a double click for full screen.
+ * ui/sidebar.slint, ui/welcome.slint and src/window.rs say the app does: the
+ * same speed ladder on the arrow buttons, the same words on screen, the
+ * controls gone after 2.5 seconds, a click to pause or resume at once, a
+ * double click for full screen, Home back to the welcome screen, and the
+ * last frame kept when the playlist ends, as keep-open=yes does.
  *
  * There are no video files. Each "file" in the playlist is a function from a
  * time to a picture, which is why seeking is real and why the seek bar's
@@ -520,8 +522,8 @@
     var previewTime = $("previewTime"), previewChapter = $("previewChapter");
     var sidebar = $("sidebar");
     var previewContext = previewCanvas.getContext("2d");
-    previewCanvas.width = 352;
-    previewCanvas.height = 198;
+    previewCanvas.width = 240;
+    previewCanvas.height = 135;
 
     var state = {
         index: 0,
@@ -541,12 +543,20 @@
         flip: false,
         mirror: false,
         aspect: 0,
+        crop: 0,
+        home: false,
+        resume: { index: 0, time: 0 },
+        recent: [0, 1, 2],
         colour: { brightness: 0, contrast: 0, saturation: 0, gamma: 0, hue: 0 },
         audioDelay: 0,
-        subsOn: false,
+        /* The track, and mpv's sub-visibility apart from it, on by default. */
+        subTrack: false,
+        subVisible: true,
         subDelay: 0,
         subScale: 1,
-        subPosition: 100
+        subPosition: 100,
+        secShow: true,
+        secDelay: 0
     };
 
     var draws = FILES.map(function () { return null; });
@@ -600,7 +610,7 @@
     function controlsHeld() {
         return dragging || seekDragging || state.panel !== null || osc.matches(":hover") ||
             player.matches(".is-pip") || osc.contains(document.activeElement) ||
-            reduced.matches;
+            state.home || reduced.matches;
     }
 
     function wake() {
@@ -643,6 +653,8 @@
         var end = state.remaining ? "-" + clock(length - state.time) : clock(length);
         if (end !== lastEnd) { lastEnd = end; endEl.textContent = end; }
 
+        $("pipFill").style.width = percent;
+
         paintSubs();
         paintSeenBar();
     }
@@ -673,15 +685,15 @@
         var label = $("oscSpeed");
         label.hidden = state.speed === 1;
         label.textContent = speedText(state.speed);
-        label.style.left = state.speed < 1 ? "auto" : "148px";
-        label.style.right = state.speed < 1 ? "148px" : "auto";
+        label.style.left = state.speed < 1 ? "auto" : "144px";
+        label.style.right = state.speed < 1 ? "144px" : "auto";
     }
 
     function paintVolume() {
         var value = state.muted ? 0 : state.volume;
         var slider = $("volume");
         slider.value = String(state.volume);
-        slider.style.setProperty("--v", value + "%");
+        slider.style.setProperty("--f", String(value / 100));
         var icon = value <= 0 ? "volume-x" : value < 34 ? "volume" : value < 67 ? "volume-1" : "volume-2";
         $("muteIcon").setAttribute("href", "#i-" + icon);
         $("mute").setAttribute("aria-label", state.muted ? "Unmute" : "Mute");
@@ -694,6 +706,7 @@
         $("oscPlay").setAttribute("aria-label", word);
         $("oscPlay").title = word;
         $("pipPlay").setAttribute("aria-label", word);
+        $("pipPlay").title = word;
         renderRows();
     }
 
@@ -702,14 +715,21 @@
     function layoutPicture() {
         var W = player.clientWidth, H = player.clientHeight;
         if (!W || !H) { return; }
+        /* The picture's shape, then what a crop leaves of it, fitted to the
+           window and turned; the canvas covers the cropped shape and is
+           clipped to it. */
         var ratio = state.aspect || 16 / 9;
+        var shown = state.crop || ratio;
         var sideways = state.rotation % 180 !== 0;
-        var boxRatio = sideways ? 1 / ratio : ratio;
+        var boxRatio = sideways ? 1 / shown : shown;
         var bw = W, bh = W / boxRatio;
         if (bh > H) { bh = H; bw = H * boxRatio; }
         var cw = sideways ? bh : bw, ch = sideways ? bw : bh;
-        canvas.style.width = cw + "px";
-        canvas.style.height = ch + "px";
+        var fw = cw, fh = ch;
+        if (ratio > shown) { fw = ch * ratio; } else { fh = cw / ratio; }
+        canvas.style.width = fw + "px";
+        canvas.style.height = fh + "px";
+        canvas.style.clipPath = state.crop ? "inset(" + (fh - ch) / 2 + "px " + (fw - cw) / 2 + "px)" : "";
         canvas.style.transform = "rotate(" + state.rotation + "deg) scale(" +
             (state.mirror ? -1 : 1) + "," + (state.flip ? -1 : 1) + ")";
 
@@ -741,7 +761,7 @@
 
     function paintSubs() {
         var text = "";
-        if (state.subsOn) {
+        if (state.subTrack && state.subVisible) {
             var shifted = state.time - state.subDelay;
             var lines = file().subs;
             if (shifted >= 0 && (shifted % 12) < 5) {
@@ -804,25 +824,24 @@
     }
 
     function paintSeenBar() {
-        var i, width;
+        var i, seen;
         for (i = 0; i < seenBars.length; i += 1) {
-            /* The bar spans the title's column, whose width is what is left of
-               the row after the number and the length. */
-            width = FILES[i].seen * 240;
-            seenBars[i].style.width = width + "px";
-            seenBars[i].hidden = width <= 0 || i === state.index;
+            /* All but 44px of the row, as far as it was watched. */
+            seen = Math.min(1, FILES[i].seen);
+            seenBars[i].style.width = "calc((100% - 44px) * " + seen + ")";
+            seenBars[i].hidden = seen <= 0 || i === state.index;
         }
     }
 
     function renderChapters() {
         chaptersEl.textContent = "";
         var current = chapterAt(file(), state.time);
-        file().chapters.forEach(function (chapter, index) {
+        file().chapters.forEach(function (chapter) {
             var row = document.createElement("button");
             row.type = "button";
             row.className = "row row-chapter" + (chapter === current ? " is-current" : "");
-            row.innerHTML = '<span class="row-n"></span><span class="row-id"><span class="row-title"></span></span><span class="row-time"></span>';
-            row.querySelector(".row-n").textContent = String(index + 1);
+            row.setAttribute("aria-current", chapter === current ? "true" : "false");
+            row.innerHTML = '<span class="row-id"><span class="row-title"></span></span><span class="row-time"></span>';
             row.querySelector(".row-title").textContent = chapter[1];
             row.querySelector(".row-time").textContent = clock(chapter[0]);
             row.addEventListener("click", function () { seekTo(chapter[0]); osdSeek(); });
@@ -830,14 +849,20 @@
         });
     }
 
+    /* What you watched of the one playing, and where it got to, as the
+       history keeps them for Recent and Resume Last Playback. */
+    function remember() {
+        var leaving = file();
+        leaving.seen = Math.max(leaving.seen, state.time / leaving.length);
+        leaving.position = state.time;
+        state.resume = { index: state.index, time: state.time };
+    }
+
     function open(index, keepTime) {
-        if (index !== state.index) {
-            /* What you watched of the one you are leaving. */
-            var leaving = file();
-            leaving.seen = Math.max(leaving.seen, state.time / leaving.length);
-        }
+        if (index !== state.index) { remember(); }
         state.index = clamp(index, 0, FILES.length - 1);
         state.time = keepTime || 0;
+        state.recent = [state.index].concat(state.recent.filter(function (n) { return n !== state.index; }));
         state.a = -1;
         state.b = -1;
         titleEl.textContent = file().name;
@@ -874,6 +899,9 @@
         return (state.index + direction + FILES.length) % FILES.length;
     }
 
+    /* At the end of the last entry the picture stays on its last frame,
+       paused, as mpv's keep-open=yes (the app's default for a file) leaves it.
+       Only the library and the YouTube section go back on their own. */
     function ended() {
         if (state.loopFile) { state.time = 0; return; }
         if (state.index === FILES.length - 1 && !state.loopList && !state.shuffle) {
@@ -885,9 +913,64 @@
         open(nextIndex(1));
     }
 
+    /* ------------------------------------------------ the welcome screen */
+
+    var welcomeEl = $("welcome"), recentEl = $("recentRows");
+
+    function renderRecent() {
+        recentEl.textContent = "";
+        state.recent.forEach(function (index) {
+            var row = document.createElement("button");
+            row.type = "button";
+            row.className = "recent-row";
+            row.innerHTML = '<svg class="ico" aria-hidden="true"><use href="#i-file-play"/></svg><span><b></b><i></i></span>';
+            row.querySelector("b").textContent = FILES[index].name;
+            row.querySelector("i").textContent = FOLDER;
+            row.addEventListener("click", function () { leaveHome(index, FILES[index].position || 0); });
+            recentEl.appendChild(row);
+        });
+        var resume = FILES[state.resume.index];
+        $("welResumeTitle").textContent = resume.name +
+            (state.resume.time > 1 ? " — " + clock(state.resume.time) : "");
+    }
+
+    /* Home: what plays stops, and the window shows the welcome screen. */
+    function goHome() {
+        if (state.home) { return; }
+        if (player.classList.contains("is-pip")) { togglePip(); }
+        remember();
+        state.home = true;
+        hidePreview();
+        window.clearTimeout(osdTimer);
+        osdEl.classList.remove("is-on");
+        setPanel(null);
+        player.classList.add("is-home");
+        welcomeEl.hidden = false;
+        titleEl.textContent = "Patina";
+        $("tbPip").disabled = true;
+        renderRecent();
+        wake();
+        var first = $("welResume");
+        if (player.contains(document.activeElement) && document.activeElement !== player) {
+            first.focus({ preventScroll: true });
+        }
+    }
+
+    function leaveHome(index, time) {
+        state.home = false;
+        welcomeEl.hidden = true;
+        player.classList.remove("is-home");
+        $("tbPip").disabled = false;
+        open(index, time);
+        if (state.paused && !reduced.matches) { state.paused = false; paintPause(); }
+        player.focus({ preventScroll: true });
+        wake();
+    }
+
     /* ---------------------------------------------------- the transport */
 
     function togglePause() {
+        if (state.home) { return; }
         state.paused = !state.paused;
         paintPause();
         osd(state.paused ? "Pause" : "Resume");
@@ -957,6 +1040,7 @@
     }
 
     function togglePip() {
+        if (state.home) { return; }
         var on = !player.classList.contains("is-pip");
         player.classList.toggle("is-pip", on);
         $("pipNote").hidden = !on;
@@ -1026,17 +1110,28 @@
         });
     }
 
+    /* ValueSlider: its value beside the label, and a reset button that is
+       off while the value is the default. */
     function slider(id, read, onInput) {
-        var input = $(id), out = $(id + "Read");
+        var input = $(id), out = $(id + "Read"), reset = $(id + "Reset");
+        var initial = input.defaultValue;
         function paint() {
             var span = parseFloat(input.max) - parseFloat(input.min);
-            input.style.setProperty("--v", ((parseFloat(input.value) - parseFloat(input.min)) / span * 100) + "%");
+            input.style.setProperty("--f", String((parseFloat(input.value) - parseFloat(input.min)) / span));
             if (out) { out.textContent = read(parseFloat(input.value)); }
+            if (reset) { reset.disabled = Math.abs(parseFloat(input.value) - parseFloat(initial)) < 1e-6; }
         }
         input.addEventListener("input", function () {
             onInput(parseFloat(input.value));
             paint();
         });
+        if (reset) {
+            reset.addEventListener("click", function () {
+                input.value = initial;
+                onInput(parseFloat(initial));
+                paint();
+            });
+        }
         paint();
         return { input: input, paint: paint };
     }
@@ -1048,6 +1143,12 @@
         state.aspect = ASPECTS[index];
         layoutPicture();
         osd("Aspect Ratio: " + ASPECT_NAMES[index]);
+    });
+    var CROP_NAMES = ["None", "4:3", "16:9", "16:10", "21:9", "5:4"];
+    choices("cropChoices", CROP_NAMES, 0, function (index) {
+        state.crop = ASPECTS[index];
+        layoutPicture();
+        osd("Crop: " + CROP_NAMES[index]);
     });
     choices("rotationChoices", ["0°", "90°", "180°", "270°"], 0, function (index) {
         state.rotation = index * 90;
@@ -1066,16 +1167,25 @@
         osd("Mirror: " + (state.mirror ? "On" : "Off"));
     });
 
-    var speedSlider = slider("speedRange", function (value) {
-        return speedText(Math.pow(2, value));
+    /* Speed on a log2 scale from 0.25x to 16x, which snaps to 1x near the
+       middle. The arrows' ladder goes further than the slider does. */
+    var speedSlider = slider("speedRange", function () {
+        return speedText(state.speed);
     }, function (value) {
-        setSpeed(Math.pow(2, value));
+        setSpeed(Math.abs(value) < 0.1 ? 1 : Math.pow(2, value));
     });
 
     function syncSpeedPanel() {
-        speedSlider.input.value = String(Math.log2(state.speed));
+        speedSlider.input.value = String(clamp(Math.log2(state.speed), -2, 4));
         speedSlider.paint();
     }
+
+    $("deinterlace").addEventListener("change", function (event) {
+        osd("Deinterlace: " + (event.target.checked ? "On" : "Off"));
+    });
+    $("hwdec").addEventListener("change", function (event) {
+        osd("Hardware Decoding: " + (event.target.checked ? "On" : "Off"));
+    });
 
     ["brightness", "contrast", "saturation", "gamma", "hue"].forEach(function (name) {
         /* "gamma" on its own is the filter's id. */
@@ -1112,19 +1222,34 @@
         Array.prototype.forEach.call(eqEl.querySelectorAll("input"), function (input) { input.value = "0"; });
     });
 
-    function setSubsOn(on) {
-        state.subsOn = on;
-        $("subsShow").checked = on;
+    function setSubTrack(on) {
+        state.subTrack = on;
         $("trackNone").setAttribute("aria-pressed", String(!on));
         $("trackEnglish").setAttribute("aria-pressed", String(on));
         paintClock();
     }
     $("subsShow").addEventListener("change", function (event) {
-        setSubsOn(event.target.checked);
+        state.subVisible = event.target.checked;
         osd(event.target.checked ? "Subtitles Shown" : "Subtitles Hidden");
+        paintClock();
     });
-    $("trackNone").addEventListener("click", function () { setSubsOn(false); osd("Subtitle: None"); });
-    $("trackEnglish").addEventListener("click", function () { setSubsOn(true); osd("Subtitle: 1 English"); });
+    choices("subWhich", ["Primary", "Secondary"], 0, function (index) {
+        var secondary = index === 1;
+        $("subPrimary").hidden = secondary;
+        $("subSecondary").hidden = !secondary;
+        Array.prototype.forEach.call(document.querySelectorAll("#panel-subtitles .only-primary"), function (el) { el.hidden = secondary; });
+        Array.prototype.forEach.call(document.querySelectorAll("#panel-subtitles .only-secondary"), function (el) { el.hidden = !secondary; });
+    });
+    $("secShow").addEventListener("change", function (event) {
+        state.secShow = event.target.checked;
+        osd(event.target.checked ? "Secondary Subtitles Shown" : "Secondary Subtitles Hidden");
+    });
+    slider("secDelay", delayText, function (value) {
+        state.secDelay = value;
+        osd("Secondary Subtitle Delay: " + delayText(value));
+    });
+    $("trackNone").addEventListener("click", function () { setSubTrack(false); osd("Subtitle: None"); });
+    $("trackEnglish").addEventListener("click", function () { setSubTrack(true); osd("Subtitle: 1 English"); });
 
     var subDelay = slider("subDelay", delayText, function (value) {
         state.subDelay = value;
@@ -1147,13 +1272,15 @@
     var dragging = false, dragStart = null, drag = { x: 0, y: 0 };
 
     function clampDrag() {
+        /* Within the window, 8px from its edges and the title bar. An open
+           sidebar only holds it off while it is open: style.css clamps the
+           position, and the distance dragged stays as it was. */
         var W = player.clientWidth, H = player.clientHeight;
         var width = osc.offsetWidth, height = osc.offsetHeight;
-        var side = parseFloat(player.style.getPropertyValue("--sidebar")) || 0;
-        var room = (W - side - width) / 2;
-        var roomUp = H - height - 24 - 32;
-        drag.x = clamp(drag.x, -room, room + side);
-        drag.y = clamp(drag.y, -Math.max(0, roomUp), 24);
+        var room = Math.max(0, (W - width) / 2 - 8);
+        var roomUp = H - height - 24 - 40;
+        drag.x = clamp(drag.x, -room, room);
+        drag.y = clamp(drag.y, -Math.max(0, roomUp), 16);
         osc.style.setProperty("--drag-x", drag.x + "px");
         osc.style.setProperty("--drag-y", drag.y + "px");
     }
@@ -1190,11 +1317,13 @@
         var host = player.getBoundingClientRect();
         previewAt = timeAt(event);
         previewEl.hidden = false;
+        /* Centred on the pointer, 6px above the controller and kept within
+           its width. */
         var width = previewEl.offsetWidth;
-        var x = event.clientX - host.left - width / 2;
-        previewEl.style.left = clamp(x, 8, host.width - width - 8) + "px";
-        var above = host.bottom - osc.getBoundingClientRect().top + 8;
-        previewEl.style.bottom = above + "px";
+        var bar = osc.getBoundingClientRect();
+        var x = event.clientX - width / 2;
+        previewEl.style.left = (clamp(x, bar.left, bar.right - width) - host.left - player.clientLeft) + "px";
+        previewEl.style.bottom = (host.bottom - bar.top + 6 - player.clientTop) + "px";
         if (previewFrame === null) {
             previewFrame = window.requestAnimationFrame(paintPreview);
         }
@@ -1244,18 +1373,28 @@
         hideTimer = window.setTimeout(sleep, 600);
     });
 
-    /* A click shows or hides the controls, and a double click is full screen,
-       as the app's defaults have it. */
+    /* A click pauses or resumes at once, and a double click is full screen,
+       its second click taking the first one's pause back, as the app's
+       defaults have it. A finger has no hover to bring the controls, so a
+       tap shows or hides them instead. */
+    var pointerKind = "mouse";
+    picture.addEventListener("pointerdown", function (event) { pointerKind = event.pointerType; });
     picture.addEventListener("click", function () {
         player.focus({ preventScroll: true });
-        if (player.classList.contains("is-idle")) { wake(); }
-        else {
+        if (pointerKind === "mouse" || pointerKind === "pen") {
+            togglePause();
+            wake();
+        } else if (player.classList.contains("is-idle")) {
+            wake();
+        } else {
             holdUntil = 0;
             window.clearTimeout(hideTimer);
             player.classList.add("is-idle");
         }
     });
-    picture.addEventListener("dblclick", toggleFullscreen);
+    picture.addEventListener("dblclick", function () {
+        if (pointerKind === "mouse" || pointerKind === "pen") { toggleFullscreen(); }
+    });
 
     /* ------------------------------------------------------ the buttons */
 
@@ -1267,6 +1406,9 @@
     $("toolPlaylist").addEventListener("click", function () { togglePanel(PLAYLIST_GROUP, "playlist"); });
     $("toolSettings").addEventListener("click", function () { togglePanel(SETTINGS_GROUP, "video"); });
     $("toolPip").addEventListener("click", togglePip);
+    $("tbHome").addEventListener("click", goHome);
+    $("toolHome").addEventListener("click", goHome);
+    $("welResume").addEventListener("click", function () { leaveHome(state.resume.index, state.resume.time); });
     $("tbPip").addEventListener("click", togglePip);
     $("pipReturn").addEventListener("click", togglePip);
     $("pipBack").addEventListener("click", togglePip);
@@ -1312,6 +1454,13 @@
 
         if (onField && /^Arrow|^Home$|^End$/.test(key) && !control) { return; }
         if (onButton && (key === " " || key === "Enter")) { return; }
+        /* Nothing plays on the welcome screen; full screen still works. The
+           keys that would play, seek or turn the volume do nothing there,
+           rather than scroll the page out from under the window. */
+        if (state.home && !(!control && !event.altKey && (key === "f" || key === "F11"))) {
+            if (!control && (key === " " || /^Arrow/.test(key))) { event.preventDefault(); }
+            return;
+        }
 
         var handled = true;
         if (!control && !event.altKey && (key === " " || key === "p")) { togglePause(); }
@@ -1392,7 +1541,7 @@
         window.requestAnimationFrame(frame);
         var dt = Math.min(0.1, (now - previous) / 1000);
         previous = now;
-        if (!visible || document.hidden || state.paused) { return; }
+        if (!visible || document.hidden || state.paused || state.home) { return; }
 
         state.time += dt * state.speed;
         if (state.b >= 0 && state.time >= state.b) { state.time = state.a; }
@@ -1416,11 +1565,14 @@
 
     /* ------------------------------------------------------------ start */
 
+    /* The player as well as its slot: full screen resizes the one only. */
     if (window.ResizeObserver) {
-        new ResizeObserver(function () {
+        var resized = new ResizeObserver(function () {
             layoutPicture();
             setPanelWidthVar();
-        }).observe(slot);
+        });
+        resized.observe(slot);
+        resized.observe(player);
     } else {
         window.addEventListener("resize", layoutPicture);
     }

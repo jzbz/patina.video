@@ -24,7 +24,7 @@
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Patina — your video, edge to edge. A media player for Linux, macOS and Windows, shown as a window playing a Mandelbrot set with a floating controller over it.">
+<meta property="og:image:alt" content="Patina — your video, edge to edge. A media player for Linux, macOS and Windows, built on mpv, with Jellyfin and YouTube clients, shown as a window playing a Mandelbrot set with a floating controller over it.">
 
 <link rel="preload" href="../assets/fonts/ibm-plex-sans-regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../assets/fonts/ibm-plex-sans-bold.woff2" as="font" type="font/woff2" crossorigin>
@@ -92,7 +92,7 @@
 
 <section class="hero" id="top">
   <div class="wrap">
-    <p class="eyebrow">Privacy policy &middot; effective 2026-11-05</p>
+    <p class="eyebrow">Privacy policy &middot; effective 2026-11-12</p>
     <h1 class="hero-h1">Privacy.</h1>
     <p class="hero-deck">
       Patina has no account and sends nothing to its developer. It plays what
@@ -114,7 +114,7 @@
         <li>
           <strong>Nothing goes to the developer.</strong> Patina has no account,
           no telemetry, no analytics, no crash reporting and no update check, and
-          it looks up no covers or metadata for what you play.
+          it looks up no covers or metadata for your own files and streams.
         </li>
         <li>
           <strong>On your computer</strong> it keeps your settings, your playback
@@ -137,9 +137,9 @@
         </li>
         <li>
           <strong>YouTube</strong> has no account, and nothing goes until you open
-          its section. Opening it asks YouTube about the channels you follow, so
-          Google can see your IP address and those channels, along with what you
-          search for and play.
+          its section. Opening it asks YouTube about the channels you follow and
+          for titles it is missing, so Google can see your IP address and those
+          channels, along with what you search for and play.
         </li>
       </ul>
       <p>
@@ -173,6 +173,10 @@
           OpenSubtitles API key and user name, <strong>in plain text</strong>. The
           OpenSubtitles password is not here: see <a href="#passwords">Passwords</a>.
         </li>
+        <li>
+          <code>moved-defaults.json</code> &mdash; which changed defaults your
+          settings have been given, so that each is given only once.
+        </li>
         <li><code>input_conf/</code> &mdash; your key binding sets.</li>
         <li><code>mpv/</code> &mdash; your own <code>mpv.conf</code>, scripts and fonts, if you add any.</li>
       </ul>
@@ -192,8 +196,10 @@
       <ul>
         <li>
           <code>history.json</code> &mdash; what you played: the path or URL, the
-          title, when, its length and how far you got. At most 1,000 entries. This
-          also feeds the recent files.
+          title, when, its length, how far you got, and whether the YouTube section
+          opened it. At most 1,000 entries. This also feeds the recent files. A
+          YouTube entry with no title can be given one later by the YouTube section
+          (see <a href="#youtube">YouTube</a>).
         </li>
         <li>
           <code>watch-later/</code> &mdash; mpv's resume files: where you stopped
@@ -288,10 +294,17 @@
           does signing out.
         </li>
         <li>
-          For the YouTube section, every way of clearing the history above also clears
-          the watched marks, and removing one history entry clears that video's. With
-          Remember playback history off, none are noted, though you can still mark a
-          video by hand. Clear Saved Positions clears where videos were left off and
+          The YouTube section's History page has a <strong>Clear History&hellip;</strong>
+          of its own, which asks first. It takes the YouTube videos out of the history,
+          and so out of Recent and the History window, and leaves other files. It also
+          clears every watched mark and all progress, marks of videos not in the
+          history included.
+        </li>
+        <li>
+          For the YouTube section, every other way of clearing the history above also
+          clears the watched marks, and removing one history entry clears that video's.
+          With Remember playback history off, none are noted, though you can still mark
+          a video by hand. Clear Saved Positions clears where videos were left off and
           keeps what was seen of them.
         </li>
         <li>
@@ -367,8 +380,11 @@
         a web address can be handed to yt-dlp, which fetches the page. What yt-dlp
         sends is up to yt-dlp and to your own yt-dlp configuration, which Patina's
         downloads from those pages do not ignore. For YouTube it may use a JavaScript
-        runtime such as Deno. The Flatpak carries both; elsewhere they are whichever
-        you have installed.
+        runtime such as Deno. The Flatpak carries yt-dlp and Deno. Patina.app and the
+        Windows packages carry yt-dlp's own folder build but no JavaScript runtime, so
+        yt-dlp asks YouTube only for what plays without one. They use a yt-dlp you
+        installed instead when it is newer, or the one set in Preferences &rsaquo;
+        Network. Only a build of your own relies on what is installed.
       </p>
       <p>
         Scripts in Patina's <code>mpv</code> folder load by default, and a script can
@@ -408,7 +424,9 @@
         Patina talks only to servers you add. When it starts it reads your sign-in from
         the password store and lists your servers from <code>jellyfin.json</code>, and
         it contacts a server only once you pick it on the welcome screen, or play
-        something of its from Recent.
+        something of its from Recent, Resume Last Playback or the History window. An
+        entry opened as Patina starts first waits up to 20 seconds for the password
+        store.
       </p>
       <ul>
         <li>
@@ -418,7 +436,8 @@
         </li>
         <li>
           While you play something from the server, Patina reports it at the start and
-          the end and every ten seconds between, paused or not: which item, the
+          the end, every ten seconds between (paused or not), and at once when you
+          pause, resume, seek or change tracks: which item, the
           position, whether it is paused or muted, the volume, the audio and subtitle
           tracks, and the queue. That is how your place stays on the server, and anyone
           who runs the server can see it.
@@ -452,9 +471,11 @@
         <li>
           <strong>Opening it, or coming back to it from a video:</strong> if the last check
           is over 30 minutes old (an hour after YouTube refused), it asks about the channels
-          that haven't answered in that time, and fetches the titles of saved videos that
-          have none. Your lists stay in Patina, but bringing them up to date still shows them
-          to Google.
+          that haven't answered in that time. It also fetches the titles of saved videos,
+          and of YouTube videos in your playback history, that have none (for example
+          entries recorded under mpv's stand-in, <code>watch?v=&hellip;</code>), one every 15
+          seconds. Titles the section already knows are filled in with no request. Your
+          lists stay in Patina, but bringing them up to date still shows them to Google.
         </li>
         <li>
           <strong>What you do:</strong> Update Now, a search on Enter (never while typing),
@@ -492,7 +513,10 @@
       <p>
         A YouTube address opened some other way, with Open URL or a <code>patina://</code> link,
         isn't the section's. It goes through mpv with your own yt-dlp options and configuration,
-        as any web address does, and those can hold cookies.
+        as any web address does, and those can hold cookies. Recent, Resume Last Playback and
+        the History window open an entry the way it last went: a video the section sent stays
+        the section's, with none of your yt-dlp options, and the same address opened with Open
+        URL keeps them.
       </p>
       <p>
         YouTube's terms bar downloading and automated access, along with getting around their
@@ -521,7 +545,8 @@
       <h3>Your browser</h3>
       <p>
         Patina opens a page in your browser only when you ask: its website from the Help
-        menu, or a web address in the playlist with Open in Browser.
+        menu or the About window's Website button, or a web address in the playlist with Open
+        in Browser.
       </p>
     </section>
 
@@ -603,7 +628,7 @@
         this page is wrong about what Patina does, that is a bug; please report it.
       </p>
       <p>
-        Effective 2026-11-05. When a release changes anything described here, this page changes with it, and so does the date.
+        Effective 2026-11-12. When a release changes anything described here, this page changes with it, and so does the date.
       </p>
     </section>
 
@@ -617,7 +642,7 @@
     <div class="colophon-brand">
       <img class="brand-icon" src="../assets/images/icon.svg" alt="" width="38" height="38">
       <span class="wordmark">Patina</span>
-      <p>A media player for Linux, macOS and Windows.</p>
+      <p>A media player for Linux, macOS and Windows, built on mpv, with Jellyfin and YouTube clients.</p>
     </div>
 
     <nav class="colophon-links" aria-label="Elsewhere">
